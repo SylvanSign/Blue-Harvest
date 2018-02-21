@@ -5,6 +5,7 @@
   const submit = document.querySelector("#submit")
 
   const sites = []
+  const known_sites = []
 
   resetInput()
 
@@ -17,16 +18,22 @@
 
   function createSitelist() {
     siteList.innerHTML = ''
-    for (const site of sites) {
+    unknown_sites = sites.filter(site => known_sites.includes(site) === false);
+    for (const site of unknown_sites) {
       const item = document.createElement("li")
       const text = document.createTextNode(site)
       item.appendChild(text)
       siteList.appendChild(item)
+
+      item.onclick = function () {
+        const siteName = text.textContent
+        known_sites.push(siteName)
+        fetchSites(siteName)
+      };
     }
   }
 
-  function fetchSites() {
-    const site = input.value.trim()
+  function fetchSites(site) {
     if (site === '') {
       return
     }
@@ -35,7 +42,9 @@
     fetch(site).then(response => {
       return response.json()
     }).then(data => {
-      const { relatedSites } = data
+      const {
+        relatedSites
+      } = data
       for (const site of relatedSites) {
         if (!sites.includes(site)) {
           sites.push(site)
@@ -50,10 +59,14 @@
     })
   }
 
+  function fetchSitesTextbox() {
+    fetchSites(input.value.trim())
+  }
+
   input.addEventListener("keydown", e => {
     if (e.keyCode === 13) {
-      fetchSites()
+      fetchSitesTextbox()
     }
   })
-  submit.addEventListener("click", fetchSites)
+  submit.addEventListener("click", fetchSitesTextbox)
 })()
