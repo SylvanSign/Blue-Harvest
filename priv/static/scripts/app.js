@@ -1,6 +1,10 @@
 (function IIFE() {
+  // Initialization
+  const SCREEN_NAME = "galacticas"
+
   // Selectors
   const input = document.querySelector("#input")
+  const test = document.querySelector("#test")
   const siteList = document.querySelector("#site-list")
   const submit = document.querySelector("#submit")
 
@@ -10,6 +14,16 @@
   resetInput()
 
   // Logic
+  let win
+  test.addEventListener("click", () => {
+    win = window.open("screen.html", '', "menubar=0")
+    // Should establish one-way-only communication from RC to Screen
+    win.opener = null
+    test.remove()
+    input.hidden = false
+    submit.hidden = false
+  }, { once: true })
+
   function resetInput() {
     input.select()
     submit.removeAttribute("disabled")
@@ -27,13 +41,8 @@
     unknown_sites = sites.filter(site => known_sites.includes(site) === false)
     for (const site of unknown_sites) {
       const item = document.createElement("li")
-      const anchor = document.createElement("a")
-      anchor.setAttribute("href", `http://${site}`)
-      anchor.setAttribute("target", "_blank")
-      anchor.setAttribute("rel", "noopener noreferrer")
       const text = document.createTextNode(site)
-      anchor.appendChild(text)
-      item.appendChild(anchor)
+      item.appendChild(text)
       const x = makeXImage();
       item.appendChild(x)
       siteList.appendChild(item)
@@ -57,6 +66,7 @@
     fetch(`/lookup?site=${encodeURIComponent(site)}`).then(response => {
       return response.json()
     }).then(data => {
+      openSite(site)
       const {
         relatedSites
       } = data
@@ -72,6 +82,10 @@
     })).then(() => {
       resetInput()
     })
+  }
+
+  function openSite(site) {
+    win.location = `http://${site}`
   }
 
   function fetchSitesTextbox() {
