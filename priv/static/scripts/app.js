@@ -1,62 +1,12 @@
 (function IIFE() {
   // Initialization
-  const SCREEN_NAME = "galacticas"
+  const SCREEN_NAME = "galactica"
+  openSite(`${SCREEN_NAME}.html`)
 
   // Selectors
-  const input = document.querySelector("#input")
-  const test = document.querySelector("#test")
-  const siteList = document.querySelector("#site-list")
-  const submit = document.querySelector("#submit")
 
-  const sites = []
-  const known_sites = []
-
-  resetInput()
 
   // Logic
-  let win
-  test.addEventListener("click", () => {
-    win = window.open("screen.html", '', "menubar=0")
-    // Should establish one-way-only communication from RC to Screen
-    win.opener = null
-    test.remove()
-    input.hidden = false
-    submit.hidden = false
-  }, { once: true })
-
-  function resetInput() {
-    input.select()
-    submit.removeAttribute("disabled")
-    submit.textContent = "GO"
-  }
-
-  function makeXImage() {
-    const x = new Image(10, 10)
-    x.src = "images/x.png"
-    return x
-  }
-
-  function createSitelist() {
-    siteList.innerHTML = ''
-    unknown_sites = sites.filter(site => known_sites.includes(site) === false)
-    for (const site of unknown_sites) {
-      const item = document.createElement("li")
-      const text = document.createTextNode(site)
-      item.appendChild(text)
-      const x = makeXImage();
-      item.appendChild(x)
-      siteList.appendChild(item)
-
-      x.onclick = function () {
-        item.remove()
-        const siteName = text.textContent
-        known_sites.push(siteName)
-        input.value = siteName
-        fetchSites(siteName)
-      }
-    }
-  }
-
   function fetchSites(site) {
     if (site === '') {
       return
@@ -66,7 +16,7 @@
     fetch(`/lookup?site=${encodeURIComponent(site)}`).then(response => {
       return response.json()
     }).then(data => {
-      openSite(site)
+      openSite(`http://${site}`, SCREEN_NAME)
       const {
         relatedSites
       } = data
@@ -84,18 +34,12 @@
     })
   }
 
-  function openSite(site) {
-    win.location = `http://${site}`
-  }
-
-  function fetchSitesTextbox() {
-    fetchSites(input.value.trim())
-  }
-
-  input.addEventListener("keydown", e => {
-    if (e.keyCode === 13) {
-      fetchSitesTextbox()
+  function openSite(url) {
+    const windowRef = window.open(url, SCREEN_NAME, "menubar=0")
+    if (windowRef) {
+      return windowRef
+    } else {
+      alert("Are you alive? Please allow popups for this site.")
     }
-  })
-  submit.addEventListener("click", fetchSitesTextbox)
+  }
 })()

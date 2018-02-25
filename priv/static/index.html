@@ -6,21 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
-  <link href="css/style.css" rel="stylesheet">
+  <link href="css/rc.css" rel="stylesheet">
 </head>
 
 <body>
-  <h1>Site Recommender</h1>
-  <!-- <a href="screen.html" target="galactica" rel="noopener">Whatya hear, Starbuck?</a> -->
-  <a id='screen' href="screen.html"></a>
-  <br>
-  <input hidden id="input" type="text" value="google.com" autofocus="true">
-  <button hidden id="submit">GO</button>
-  <button id="test">Whatya hear, Starbuck?</button>
-  <hr>
-  <ul id="site-list"></ul>
+  <div id="wrapper">
+    <div id="up">
+      <img id="up" src="images/up.png" />
+      <p id="up-site"></p>
+    </div>
 
-  <script src="scripts/app.js"></script>
+    <div id="left">
+      <img id="left" src="images/left.png" />
+      <p id="left-site"></p>
+    </div>
+
+    <div id="center">
+      <p id="current-site"></p>
+    </div>
+
+    <div id="right">
+      <img id="right" src="images/right.png" />
+      <p id="right-site"></p>
+    </div>
+
+    <div id="down">
+      <img id="down" src="images/down.png" />
+      <p id="down-site"></p>
+    </div>
+  </div>
 </body>
 
 </html>
