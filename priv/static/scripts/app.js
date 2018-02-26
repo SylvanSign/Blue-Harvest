@@ -1,11 +1,13 @@
 // (function IIFE() {
 
 // Selectors
-const currentSite = document.querySelector("#currentSite")
-const upSite = document.querySelector("#upSite")
-const leftSite = document.querySelector("#leftSite")
-const rightSite = document.querySelector("#rightSite")
-const downSite = document.querySelector("#downSite")
+const controls = {
+  up: document.querySelector("#upSite"),
+  left: document.querySelector("#leftSite"),
+  current: document.querySelector("#currentSite"),
+  right: document.querySelector("#rightSite"),
+  down: document.querySelector("#downSite"),
+}
 
 // Siteroom stuff
 const DIRS = ['left', 'right', 'up', 'down']
@@ -33,7 +35,8 @@ class Site {
     fetchSites(this.name).then(sites => {
       sites = sites.filter(s => Site.addSite(s))
       for (const dir of DIRS) {
-        this[dir] = this[dir] || sites.pop()
+        this[dir] = this[dir] || { name: sites.pop() }
+        controls[dir].textContent = this[dir].name
       }
     })
   }
@@ -61,7 +64,8 @@ Site.sites = new Set()
 const SCREEN_NAME = "galactica"
 const siteName = location.hash && location.hash.slice(1) || "google.com"
 Site.addSite(siteName)
-let currentSite = new Site(siteName)
+let currentLocation = new Site(siteName)
+controls.current.textContent = siteName
 openSite(`http://${siteName}`)
 
 // Logic
