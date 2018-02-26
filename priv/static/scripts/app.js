@@ -2,11 +2,26 @@
 
 // Selectors
 const controls = {
-  up: document.querySelector("#upSite"),
-  left: document.querySelector("#leftSite"),
-  current: document.querySelector("#currentSite"),
-  right: document.querySelector("#rightSite"),
-  down: document.querySelector("#downSite"),
+  up: {
+    label: document.querySelector("#upSite"),
+    button: document.querySelector("#up"),
+  },
+  left: {
+    label: document.querySelector("#leftSite"),
+    button: document.querySelector("#left"),
+  },
+  current: {
+    label: document.querySelector("#currentSite"),
+    button: document.querySelector("#current"),
+  },
+  right: {
+    label: document.querySelector("#rightSite"),
+    button: document.querySelector("#right"),
+  },
+  down: {
+    label: document.querySelector("#downSite"),
+    button: document.querySelector("#down"),
+  },
 }
 
 // Siteroom stuff
@@ -36,7 +51,8 @@ class Site {
       sites = sites.filter(s => Site.addSite(s))
       for (const dir of DIRS) {
         this[dir] = this[dir] || { name: sites.pop() }
-        controls[dir].textContent = this[dir].name
+        controls[dir].label.textContent = this[dir].name
+        controls[dir].button.hidden = !this[dir].name
       }
     })
   }
@@ -44,10 +60,18 @@ class Site {
     let nextCurrent = this[dir]
     if (!(nextCurrent instanceof Site)) {
       // make nextCurrent is a proper Site object
-      nextCurrent = new Site(nextCurrent, { prev: this, dir: oppositeDirection(dir) })
+      nextCurrent = new Site(nextCurrent.name, { prev: this, dir: oppositeDirection(dir) })
       // update current site's neighbor reference to hold proper Site object
       this[dir] = nextCurrent
+    } else {
+      for (const dir of DIRS) {
+        const name = nextCurrent[dir].name
+        controls[dir].label.textContent = name
+        controls[dir].button.hidden = !name
+      }
     }
+    controls.current.label.textContent = nextCurrent.name
+    openSite(`http://${nextCurrent.name}`)
     return nextCurrent
   }
   static addSite(name) {
@@ -65,7 +89,13 @@ const SCREEN_NAME = "galactica"
 const siteName = location.hash && location.hash.slice(1) || "google.com"
 Site.addSite(siteName)
 let currentLocation = new Site(siteName)
-controls.current.textContent = siteName
+controls.current.label.textContent = siteName
+// Setup control button click handlers
+for (const dir of DIRS) {
+  controls[dir].button.addEventListener("click", () => {
+    currentLocation = currentLocation.move(dir)
+  })
+}
 openSite(`http://${siteName}`)
 
 // Logic
