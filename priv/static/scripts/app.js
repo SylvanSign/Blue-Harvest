@@ -25,17 +25,17 @@ const controls = {
 }
 
 // Siteroom stuff
-const DIRS = ['left', 'right', 'up', 'down']
+const DIRS = ["left", "right", "up", "down"]
 function oppositeDirection(dir) {
   switch (dir) {
-    case 'left':
-      return 'right';
-    case 'right':
-      return 'left';
-    case 'up':
-      return 'down';
-    case 'down':
-      return 'up';
+    case "left":
+      return "right";
+    case "right":
+      return "left";
+    case "up":
+      return "down";
+    case "down":
+      return "up";
   }
 }
 class Site {
@@ -71,7 +71,6 @@ class Site {
       }
     }
     controls.current.label.textContent = nextCurrent.name
-    openSite(`http://${nextCurrent.name}`)
     return nextCurrent
   }
   static addSite(name) {
@@ -85,7 +84,6 @@ class Site {
 Site.sites = new Set()
 
 // Initialization
-const SCREEN_NAME = "galactica"
 const siteName = location.hash && location.hash.slice(1) || "google.com"
 Site.addSite(siteName)
 let currentLocation = new Site(siteName)
@@ -96,7 +94,6 @@ for (const dir of DIRS) {
     currentLocation = currentLocation.move(dir)
   })
 }
-openSite(`http://${siteName}`)
 
 // Logic
 function fetchSites(site) {
@@ -108,14 +105,5 @@ function fetchSites(site) {
   }).then(({ relatedSites }) => {
     return relatedSites;
   })
-}
-
-function openSite(url) {
-  const windowRef = window.open(url, SCREEN_NAME, "menubar=0")
-  if (windowRef) {
-    return windowRef
-  } else {
-    alert("Are you alive? Please allow popups for this site.")
-  }
 }
 // })()
