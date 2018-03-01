@@ -25,9 +25,9 @@ const controls = {
 }
 
 // Siteroom stuff
-const DIRS = ["left", "right", "up", "down"]
-function oppositeDirection(dir) {
-  switch (dir) {
+const DIRECTIONS = ["left", "right", "up", "down"]
+function oppositeDirection(direction) {
+  switch (direction) {
     case "left":
       return "right";
     case "right":
@@ -39,35 +39,35 @@ function oppositeDirection(dir) {
   }
 }
 class Site {
-  constructor(name, { prev, dir } = {}) {
+  constructor(name, { prev, direction } = {}) {
     this.name = name
-    if (dir) {
-      this[dir] = prev
+    if (direction) {
+      this[direction] = prev
     }
     this.setRelatedSites()
   }
   setRelatedSites() {
     fetchSites(this.name).then(sites => {
       sites = sites.filter(s => Site.addSite(s))
-      for (const dir of DIRS) {
-        this[dir] = this[dir] || { name: sites.pop() }
-        controls[dir].label.textContent = this[dir].name
-        controls[dir].button.hidden = !this[dir].name
+      for (const direction of DIRECTIONS) {
+        this[direction] = this[direction] || { name: sites.pop() }
+        controls[direction].label.textContent = this[direction].name
+        controls[direction].button.hidden = !this[direction].name
       }
     })
   }
-  move(dir) {
-    let nextCurrent = this[dir]
+  move(moveDirection) {
+    let nextCurrent = this[moveDirection]
     if (!(nextCurrent instanceof Site)) {
       // make nextCurrent is a proper Site object
-      nextCurrent = new Site(nextCurrent.name, { prev: this, dir: oppositeDirection(dir) })
+      nextCurrent = new Site(nextCurrent.name, { prev: this, direction: oppositeDirection(moveDirection) })
       // update current site's neighbor reference to hold proper Site object
-      this[dir] = nextCurrent
+      this[moveDirection] = nextCurrent
     } else {
-      for (const dir of DIRS) {
-        const name = nextCurrent[dir].name
-        controls[dir].label.textContent = name
-        controls[dir].button.hidden = !name
+      for (const direction of DIRECTIONS) {
+        const name = nextCurrent[direction].name
+        controls[direction].label.textContent = name
+        controls[direction].button.hidden = !name
       }
     }
     controls.current.label.textContent = nextCurrent.name
@@ -89,9 +89,9 @@ Site.addSite(siteName)
 let currentLocation = new Site(siteName)
 controls.current.label.textContent = siteName
 // Setup control button click handlers
-for (const dir of DIRS) {
-  controls[dir].button.addEventListener("click", () => {
-    currentLocation = currentLocation.move(dir)
+for (const direction of DIRECTIONS) {
+  controls[direction].button.addEventListener("click", () => {
+    currentLocation = currentLocation.move(direction)
   })
 }
 
