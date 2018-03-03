@@ -48,7 +48,8 @@ class Site {
   }
   setRelatedSites() {
     fetchSites(this.name).then(sites => {
-      sites = sites.filter(s => Site.addSite(s))
+      sites = sites.filter(s => Site.isUndiscovered(s))
+      sites.forEach(s => Site.addSite(s))
       for (const direction of DIRECTIONS) {
         this[direction] = this[direction] || { name: sites.pop() }
         controls[direction].label.textContent = this[direction].name
@@ -73,12 +74,11 @@ class Site {
     controls.current.label.textContent = nextCurrent.name
     return nextCurrent
   }
+  static isUndiscovered(site) {
+    return !Site.sites.has(site)
+  }
   static addSite(name) {
-    if (Site.sites.has(name)) {
-      return false
-    }
     Site.sites.add(name)
-    return true
   }
 }
 Site.sites = new Set()
