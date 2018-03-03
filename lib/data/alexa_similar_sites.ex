@@ -15,8 +15,8 @@ defmodule Data.AlexaSimilarSites do
     GenServer.start_link(@name, :ok, name: @name)
   end
 
-  def get_similar(url) do
-    GenServer.call(@name, {:get_similar, url})
+  def get_similar_sites(url) do
+    GenServer.call(@name, {:get_similar_sites, url})
   end
 
   # TODO remove this function after thouroughly testing this module
@@ -33,27 +33,26 @@ defmodule Data.AlexaSimilarSites do
     {:ok, state}
   end
 
-  def handle_call({:get_similar, url}, _from, state = {similar, ranks}) do
+  def handle_call({:get_similar_sites, url}, _from, state = {similar, ranks}) do
     host = Util.URL.parse(url)
 
     case Map.get(similar, host) do
       nil ->
-        Logger.info("Cache miss for '#{host}'. Fetching from Alexa...")
+        Logger.info("Cache miss - '#{host}' - Alexa info - Fetching.")
 
-        {host_rank_mapping, similar_sites_data} = fetch_data_from_alexa(host)
-        similar_rank_mappings = get_rank_mappings(similar_sites_data)
-        ranks = update_rankings(ranks, host_rank_mapping, similar_rank_mappings)
+        {alexa_ranks, similar_sites_with_similarity_ranks} = fetch_data_from_alexa(host)
 
-        similar_site_overlap_tuples = get_site_overlap_tuples(similar_sites_data)
-        similar = update_similar(similar, host, similar_site_overlap_tuples)
+        ranks = Map.merge(ranks, alexa_ranks)
+
+        similar = Map.put(similar, host, similar_sites_with_similarity_ranks)
 
         state = {similar, ranks}
         save_state(state)
-        {:reply, similar_site_overlap_tuples, state}
+        {:reply, similar[host], state}
 
-      similar_site_overlap_tuples ->
-        Logger.info("Serving '#{host}' data from cache")
-        {:reply, similar_site_overlap_tuples, state}
+      similar_sites ->
+        Logger.info("Serving '#{host}' - Alexa info - from cache")
+        {:reply, similar_sites, state}
     end
   end
 
@@ -76,36 +75,27 @@ defmodule Data.AlexaSimilarSites do
     File.write!(@state_file, binary_state)
   end
 
-  defp get_rank_mappings(similar_sites) do
-    Enum.reduce(similar_sites, %{}, fn site_entry, rankings ->
-      Map.put(rankings, site_entry["site2"], site_entry["alexa_rank"])
-    end)
-  end
-
-  defp update_rankings(ranks, host_rank_mapping, similar_rank_mappings) do
-    Map.merge(ranks, host_rank_mapping) |> Map.merge(similar_rank_mappings)
-  end
-
-  defp get_site_overlap_tuples(similar_sites) do
-    Enum.map(similar_sites, fn site_entry ->
-      {site_entry["site2"], site_entry["overlap_score"]}
-    end)
-  end
-
-  defp update_similar(similar, host, similar_sites_data) do
-    Map.put(similar, host, similar_sites_data)
-  end
-
   defp fetch_data_from_alexa(host) do
-    results =
+    [main_site_info | similar_sites_info] =
       HTTPoison.get!(@site_info_url <> host, %{}, recv_timeout: @timeout_ms)
       |> Map.get(:body)
       |> Jason.decode!()
       |> Map.get("results")
       |> Enum.filter(&Map.has_key?(&1, "site2"))
 
-    [site_data = %{"site2" => ^host} | similar_sites] = results
-    rank_mapping = %{host => site_data["alexa_rank"]}
-    {rank_mapping, similar_sites}
+    similar_sites_with_similarity_ranks =
+      Enum.reduce(similar_sites_info, %{}, fn site_entry, rankings ->
+        Map.put(rankings, site_entry["site2"], site_entry["overlap_score"])
+      end)
+
+    similar_sites_with_alexa_ranks =
+      Enum.reduce(similar_sites_info, %{}, fn site_entry, rankings ->
+        Map.put(rankings, site_entry["site2"], site_entry["alexa_rank"])
+      end)
+
+    alexa_ranks =
+      Map.merge(similar_sites_with_alexa_ranks, %{host => main_site_info["alexa_rank"]})
+
+    {alexa_ranks, similar_sites_with_similarity_ranks}
   end
 end

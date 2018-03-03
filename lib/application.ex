@@ -10,7 +10,8 @@ defmodule BlueHarvest.Application do
     children = [
       # Define workers and child supervisors to be supervised
       Plug.Adapters.Cowboy.child_spec(scheme: :http, plug: Router, options: [port: @port]),
-      Data.AlexaSimilarSites
+      Data.AlexaSimilarSites,
+      Data.SiteDescription
     ]
 
     Logger.info("Router listening at http://localhost:#{@port}")

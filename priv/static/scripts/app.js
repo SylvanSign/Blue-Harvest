@@ -13,6 +13,7 @@ const controls = {
   current: {
     label: document.querySelector("#currentSite"),
     button: document.querySelector("#current"),
+    description: document.querySelector("#currentSiteDescription")
   },
   right: {
     label: document.querySelector("#rightSite"),
@@ -26,6 +27,7 @@ const controls = {
 
 // Siteroom stuff
 const DIRECTIONS = ["left", "right", "up", "down"]
+
 function oppositeDirection(direction) {
   switch (direction) {
     case "left":
@@ -39,29 +41,45 @@ function oppositeDirection(direction) {
   }
 }
 class Site {
-  constructor(name, { prev, direction } = {}) {
+  constructor(name, {
+    prev,
+    direction
+  } = {}) {
     this.name = name
     if (direction) {
       this[direction] = prev
     }
-    this.setRelatedSites()
+    this.setSimilarSites()
+    this.setDescription()
   }
-  setRelatedSites() {
-    fetchSites(this.name).then(sites => {
-      sites = sites.filter(s => Site.isUndiscovered(s))
+
+  setSimilarSites() {
+    fetchSimilarSites(this.name).then(sites => {
       sites.forEach(s => Site.addSite(s))
       for (const direction of DIRECTIONS) {
-        this[direction] = this[direction] || { name: sites.pop() }
+        this[direction] = this[direction] || {
+          name: sites.pop()
+        }
         controls[direction].label.textContent = this[direction].name
         controls[direction].button.hidden = !this[direction].name
       }
     })
   }
+
+  setDescription() {
+    fetchDescription(this.name).then(description => {
+      controls.current.description.textContent = description
+    })
+  }
+
   move(moveDirection) {
     let nextCurrent = this[moveDirection]
     if (!(nextCurrent instanceof Site)) {
       // make nextCurrent is a proper Site object
-      nextCurrent = new Site(nextCurrent.name, { prev: this, direction: oppositeDirection(moveDirection) })
+      nextCurrent = new Site(nextCurrent.name, {
+        prev: this,
+        direction: oppositeDirection(moveDirection)
+      })
       // update current site's neighbor reference to hold proper Site object
       this[moveDirection] = nextCurrent
     } else {
@@ -77,6 +95,7 @@ class Site {
   static isUndiscovered(site) {
     return !Site.sites.has(site)
   }
+
   static addSite(name) {
     Site.sites.add(name)
   }
@@ -96,14 +115,29 @@ for (const direction of DIRECTIONS) {
 }
 
 // Logic
-function fetchSites(site) {
+function fetchSimilarSites(site) {
   if (site === '') {
     return
   }
-  return fetch(`/lookup?site=${encodeURIComponent(site)}`).then(response => {
+  return fetch(`/similarSites?site=${encodeURIComponent(site)}`).then(response => {
     return response.json()
-  }).then(({ relatedSites }) => {
-    return relatedSites;
+  }).then(({
+    similarSites
+  }) => {
+    return similarSites;
+  })
+}
+
+function fetchDescription(site) {
+  if (site === '') {
+    return
+  }
+  return fetch(`/description?site=${encodeURIComponent(site)}`).then(response => {
+    return response.json()
+  }).then(({
+    description
+  }) => {
+    return description;
   })
 }
 // })()
