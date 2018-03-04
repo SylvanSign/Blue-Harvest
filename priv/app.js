@@ -59,6 +59,10 @@ async function nodeclickHandler(node) {
       data,
     } = node
 
+    move(currentSite, node.id)
+    setSiteLabel("Fetching site data...")
+    setDescriptionLabel("")
+
     if (!data.explored) {
       const explorationData = await explore(node)
       Object.assign(node.data, explorationData)
@@ -67,7 +71,6 @@ async function nodeclickHandler(node) {
     setSiteLabel(node.id)
     setDescriptionLabel(data.description)
 
-    move(currentSite, node.id)
   }
 }
 
