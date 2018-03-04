@@ -41205,13 +41205,13 @@ const renderer = renderGraph(graph, {
   node(node) {
     return {
       color: 0xFFFFFF,
-      size: 15,
+      size: 20,
     };
   }
 });
 
 
-renderer.on('nodehover', nodehoverHandler);
+// renderer.on('nodehover', nodehoverHandler);
 renderer.on('nodeclick', nodeclickHandler);
 
 function nodehoverHandler(node) {
@@ -41231,6 +41231,11 @@ async function nodeclickHandler(node) {
     }
 
     const explorationData = await explore(node)
+
+    const nodeUI = renderer.getNode(node.id);
+    nodeUI.color = 0xFB0000; // update node color
+    nodeUI.size = 30; // update size
+
     Object.assign(data, explorationData)
   }
 }
@@ -41244,6 +41249,17 @@ async function explore(node) {
   ])
   data.similarSites = similarSites
   data.description = description
+
+  for (const site of similarSites) {
+    addNode(site, {
+      explored: false
+    })
+    addLink(node.id, site)
+  }
+
+  renderer.stable(false)
+  renderer.redraw()
+
   return data
 }
 
@@ -41263,11 +41279,16 @@ async function fetchDescription(site) {
   if (site === '') {
     throw new Error("fetchDescription called with empty site")
   }
-  const response = await fetch(`/description?site=${encodeURIComponent(site)}`)
-  const {
-    description
-  } = await response.json()
-  return description;
+  try {
+    const response = await fetch(`/description?site=${encodeURIComponent(site)}`)
+    console.log(response)
+    const {
+      description
+    } = await response.json()
+    return description;
+  } catch (err) {
+    return "" // description is a "nice to have"
+  }
 }
 
 },{"ngraph.graph":12,"ngraph.pixel":22}]},{},[51]);
