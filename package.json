@@ -13,7 +13,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "bundle": "browserify priv/static/scripts/app.js -o priv/static/scripts/bundle.js",
+    "bundle": "browserify priv/app.js -o priv/static/scripts/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
