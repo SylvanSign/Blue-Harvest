@@ -1,0 +1,29 @@
+{
+  "name": "blue-harvest",
+  "version": "1.0.0",
+  "description": "I'll try scraping, that's a good trick!",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {
+    "ngraph.graph": "^0.0.14",
+    "ngraph.pixel": "^2.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "bundle": "browserify priv/static/scripts/app.js -o priv/static/scripts/bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SylvanSign/Blue-Harvest.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SylvanSign/Blue-Harvest/issues"
+  },
+  "homepage": "https://github.com/SylvanSign/Blue-Harvest#readme"
+}
