@@ -41180,10 +41180,27 @@ if (typeof exports !== 'undefined') {
 }
 
 },{}],51:[function(require,module,exports){
-// let's create a simple graph:
+// Graph Setup
 const graph = require('ngraph.graph')();
 const renderGraph = require('ngraph.pixel');
-graph.addNode(0)
+
+const sites = new Set()
+
+function addNode(id, data) {
+  sites.add(id)
+  graph.addNode(id, data)
+}
+
+function addLink(fromId, toId, data) {
+  graph.addLink(fromId, toId, data)
+}
+
+// Initialization
+const siteName = location.hash && location.hash.slice(1) || "google.com"
+addNode(siteName, {
+  explored: false
+})
+
 const renderer = renderGraph(graph, {
   node(node) {
     return {
@@ -41193,170 +41210,64 @@ const renderer = renderGraph(graph, {
   }
 });
 
-renderer.on('nodehover', function (node) {
+
+renderer.on('nodehover', nodehoverHandler);
+renderer.on('nodeclick', nodeclickHandler);
+
+function nodehoverHandler(node) {
   if (node) {
-    console.log('Hover node ' + JSON.stringify(node));
+    console.log(JSON.stringify(node))
   }
-});
+}
 
-renderer.on('nodeclick', function (node) {
+async function nodeclickHandler(node) {
   if (node) {
-    renderer.showNode(node.id)
+    const {
+      data,
+    } = node
+
+    if (data.explored) {
+      return; // already explored, do nothing
+    }
+
+    const explorationData = await explore(node)
+    Object.assign(data, explorationData)
   }
-});
+}
 
-let count = 0
-window.addEventListener("keydown", (e) => {
-  if (e.keyCode === 13) {
-    console.log("adding")
-    graph.addNode(++count, {
-      foo: 123
-    });
+async function explore(node) {
+  const data = {}
+  data.explored = true
+  const [similarSites, description] = await Promise.all([
+    fetchSimilarSites(node.id),
+    fetchDescription(node.id),
+  ])
+  data.similarSites = similarSites
+  data.description = description
+  return data
+}
+
+// Logic
+async function fetchSimilarSites(site) {
+  if (site === '') {
+    throw new Error("fetchSimilarSites called with empty site")
   }
-})
+  const response = await fetch(`/similar-sites?site=${encodeURIComponent(site)}`)
+  const {
+    similarSites
+  } = await response.json()
+  return similarSites
+}
 
-// (function IIFE() {
-
-// // Selectors
-// const controls = {
-//   up: {
-//     label: document.querySelector("#upSite"),
-//     button: document.querySelector("#up"),
-//   },
-//   left: {
-//     label: document.querySelector("#leftSite"),
-//     button: document.querySelector("#left"),
-//   },
-//   current: {
-//     label: document.querySelector("#currentSite"),
-//     button: document.querySelector("#current"),
-//     description: document.querySelector("#currentSiteDescription")
-//   },
-//   right: {
-//     label: document.querySelector("#rightSite"),
-//     button: document.querySelector("#right"),
-//   },
-//   down: {
-//     label: document.querySelector("#downSite"),
-//     button: document.querySelector("#down"),
-//   },
-// }
-
-// // Siteroom stuff
-// const DIRECTIONS = ["left", "right", "up", "down"]
-
-// function oppositeDirection(direction) {
-//   switch (direction) {
-//     case "left":
-//       return "right";
-//     case "right":
-//       return "left";
-//     case "up":
-//       return "down";
-//     case "down":
-//       return "up";
-//   }
-// }
-// class Site {
-//   constructor(name, {
-//     prev,
-//     direction
-//   } = {}) {
-//     this.name = name
-//     if (direction) {
-//       this[direction] = prev
-//     }
-//     this.setSimilarSites()
-//     this.setDescription()
-//   }
-
-//   setSimilarSites() {
-//     fetchSimilarSites(this.name).then(sites => {
-//       sites.forEach(s => Site.addSite(s))
-//       for (const direction of DIRECTIONS) {
-//         this[direction] = this[direction] || {
-//           name: sites.pop()
-//         }
-//         controls[direction].label.textContent = this[direction].name
-//         controls[direction].button.hidden = !this[direction].name
-//       }
-//     })
-//   }
-
-//   setDescription() {
-//     fetchDescription(this.name).then(description => {
-//       controls.current.description.textContent = description
-//     })
-//   }
-
-//   move(moveDirection) {
-//     let nextCurrent = this[moveDirection]
-//     if (!(nextCurrent instanceof Site)) {
-//       // make nextCurrent is a proper Site object
-//       nextCurrent = new Site(nextCurrent.name, {
-//         prev: this,
-//         direction: oppositeDirection(moveDirection)
-//       })
-//       // update current site's neighbor reference to hold proper Site object
-//       this[moveDirection] = nextCurrent
-//     } else {
-//       for (const direction of DIRECTIONS) {
-//         const name = nextCurrent[direction].name
-//         controls[direction].label.textContent = name
-//         controls[direction].button.hidden = !name
-//       }
-//     }
-//     controls.current.label.textContent = nextCurrent.name
-//     return nextCurrent
-//   }
-//   static isUndiscovered(site) {
-//     return !Site.sites.has(site)
-//   }
-
-//   static addSite(name) {
-//     Site.sites.add(name)
-//   }
-// }
-// Site.sites = new Set()
-
-// // Initialization
-// const siteName = location.hash && location.hash.slice(1) || "google.com"
-// Site.addSite(siteName)
-// let currentLocation = new Site(siteName)
-// controls.current.label.textContent = siteName
-// // Setup control button click handlers
-// for (const direction of DIRECTIONS) {
-//   controls[direction].button.addEventListener("click", () => {
-//     currentLocation = currentLocation.move(direction)
-//   })
-// }
-
-// // Logic
-// function fetchSimilarSites(site) {
-//   if (site === '') {
-//     return
-//   }
-//   return fetch(`/similar-sites?site=${encodeURIComponent(site)}`).then(response => {
-//     return response.json()
-//   }).then(({
-//     similarSites
-//   }) => {
-//     return similarSites;
-//   })
-// }
-
-// function fetchDescription(site) {
-//   if (site === '') {
-//     return
-//   }
-//   return fetch(`/description?site=${encodeURIComponent(site)}`).then(response => {
-//     return response.json()
-//   }).then(({
-//     description
-//   }) => {
-//     return description;
-//   })
-// }
-// })()
+async function fetchDescription(site) {
+  if (site === '') {
+    throw new Error("fetchDescription called with empty site")
+  }
+  const response = await fetch(`/description?site=${encodeURIComponent(site)}`)
+  const {
+    description
+  } = await response.json()
+  return description;
+}
 
 },{"ngraph.graph":12,"ngraph.pixel":22}]},{},[51]);
