@@ -164,6 +164,7 @@ async function fetchDescription(site) {
 window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
   if (e.keyCode === SPACE_BAR) {
+    renderer.stable(true)
     renderer.autoFit()
   }
 })
