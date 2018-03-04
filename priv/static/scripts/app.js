@@ -119,7 +119,7 @@ function fetchSimilarSites(site) {
   if (site === '') {
     return
   }
-  return fetch(`/similarSites?site=${encodeURIComponent(site)}`).then(response => {
+  return fetch(`/similar-sites?site=${encodeURIComponent(site)}`).then(response => {
     return response.json()
   }).then(({
     similarSites

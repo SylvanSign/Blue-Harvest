@@ -9,7 +9,7 @@ defmodule Router.Dynamic do
   plug(:fetch_query_params)
   plug(:dispatch)
 
-  get "/similarSites" do
+  get "/similar-sites" do
     case conn.query_params do
       %{"site" => site} ->
         handle_similar_sites(conn, site)

@@ -33,18 +33,16 @@ defmodule Data.SiteDescription do
   end
 
   def handle_call({:get_site_description, url}, _from, descriptions) do
-    host = Util.URL.parse(url)
-
-    case Map.get(descriptions, host) do
+    case Map.get(descriptions, url) do
       nil ->
-        Logger.info("Cache miss - '#{host}' - Site description - Fetching.")
-        description = get_description(host)
-        descriptions = Map.put(descriptions, host, description)
+        Logger.info("Cache miss - '#{url}' - Site description - Fetching.")
+        description = get_description(url)
+        descriptions = Map.put(descriptions, url, description)
         save_state(descriptions)
         {:reply, description, descriptions}
 
       description ->
-        Logger.info("Serving '#{host}' - Site description - from cache")
+        Logger.info("Serving '#{url}' - Site description - from cache")
         {:reply, description, descriptions}
     end
   end
@@ -69,11 +67,10 @@ defmodule Data.SiteDescription do
   end
 
   defp get_description(site) do
-    HTTPoison.get!("www.#{site}", %{}, recv_timeout: @timeout_ms)
+    HTTPoison.get!("#{site}", %{}, recv_timeout: @timeout_ms, follow_redirect: true)
     |> Map.get(:body)
-    |> IO.inspect()
-    |> Floki.find("[name=description]")
+    |> Floki.find("meta[name=description]")
     |> Floki.attribute("content")
-    |> Enum.at(0)
+    |> hd()
   end
 end

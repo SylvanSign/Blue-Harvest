@@ -34,24 +34,22 @@ defmodule Data.AlexaSimilarSites do
   end
 
   def handle_call({:get_similar_sites, url}, _from, state = {similar, ranks}) do
-    host = Util.URL.parse(url)
-
-    case Map.get(similar, host) do
+    case Map.get(similar, url) do
       nil ->
-        Logger.info("Cache miss - '#{host}' - Alexa info - Fetching.")
+        Logger.info("Cache miss - '#{url}' - Alexa info - Fetching.")
 
-        {alexa_ranks, similar_sites_with_similarity_ranks} = fetch_data_from_alexa(host)
+        {alexa_ranks, similar_sites_with_similarity_ranks} = fetch_data_from_alexa(url)
 
         ranks = Map.merge(ranks, alexa_ranks)
 
-        similar = Map.put(similar, host, similar_sites_with_similarity_ranks)
+        similar = Map.put(similar, url, similar_sites_with_similarity_ranks)
 
         state = {similar, ranks}
         save_state(state)
-        {:reply, similar[host], state}
+        {:reply, similar[url], state}
 
       similar_sites ->
-        Logger.info("Serving '#{host}' - Alexa info - from cache")
+        Logger.info("Serving '#{url}' - Alexa info - from cache")
         {:reply, similar_sites, state}
     end
   end
@@ -93,8 +91,7 @@ defmodule Data.AlexaSimilarSites do
         Map.put(rankings, site_entry["site2"], site_entry["alexa_rank"])
       end)
 
-    alexa_ranks =
-      Map.merge(similar_sites_with_alexa_ranks, %{host => main_site_info["alexa_rank"]})
+    alexa_ranks = Map.put(similar_sites_with_alexa_ranks, host, main_site_info["alexa_rank"])
 
     {alexa_ranks, similar_sites_with_similarity_ranks}
   end
