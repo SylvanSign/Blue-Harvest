@@ -12,6 +12,7 @@ const Colors = {
 
 const siteLabel = document.querySelector("#siteLabel")
 const descriptionLabel = document.querySelector("#descriptionLabel")
+const controlsInfo = document.querySelector("#controls")
 
 function setSiteLabel(text) {
   siteLabel.textContent = text
@@ -163,8 +164,14 @@ async function fetchDescription(site) {
 
 window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
-  if (e.keyCode === SPACE_BAR) {
-    renderer.stable(true)
-    renderer.autoFit()
+  const ESCAPE = 27
+  switch (e.keyCode) {
+    case SPACE_BAR:
+      renderer.stable(true)
+      renderer.autoFit()
+      break
+    case ESCAPE:
+      controls.hidden = !controls.hidden
+      break
   }
 })
