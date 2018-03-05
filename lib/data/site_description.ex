@@ -36,10 +36,18 @@ defmodule Data.SiteDescription do
     case Map.get(descriptions, url) do
       nil ->
         Logger.info("Cache miss - '#{url}' - Site description - Fetching.")
-        description = get_description(url)
-        descriptions = Map.put(descriptions, url, description)
-        save_state(descriptions)
-        {:reply, description, descriptions}
+
+        case get_description(url) do
+          {:ok, description} ->
+            descriptions = Map.put(descriptions, url, description)
+            save_state(descriptions)
+            Logger.info("Serving '#{url}' - Site description - from cache")
+            {:reply, description, descriptions}
+
+          {:error, error_message} ->
+            Logger.info("Failed to find '#{url}'")
+            {:reply, error_message, descriptions}
+        end
 
       description ->
         Logger.info("Serving '#{url}' - Site description - from cache")
@@ -66,11 +74,15 @@ defmodule Data.SiteDescription do
     File.write!(@state_file, binary_state)
   end
 
-  defp get_description(site) do
-    HTTPoison.get!("#{site}", %{}, recv_timeout: @timeout_ms, follow_redirect: true)
-    |> Map.get(:body)
-    |> Floki.find("meta[name=description]")
-    |> Floki.attribute("content")
-    |> hd()
+  def get_description(site) do
+    with {:ok, site_content} <-
+           HTTPoison.get("#{site}", %{}, recv_timeout: @timeout_ms, follow_redirect: true),
+         site_body <- Map.get(site_content, :body),
+         tags = [{"meta", _, []}] <- Floki.find(site_body, "meta[name=description]"),
+         content <- Floki.attribute(tags, "content") do
+      {:ok, hd(content)}
+    else
+      _ -> {:error, "Failed to find description"}
+    end
   end
 end
