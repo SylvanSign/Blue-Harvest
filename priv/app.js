@@ -2,6 +2,8 @@ const graph = require('ngraph.graph')();
 window.graph = graph // for debugging in browser
 const renderGraph = require('ngraph.pixel');
 
+const TIME_TO_STABALIZE_IN_MS = 3000
+
 const Colors = {
   START: 0x0A25E2,
   UNEXPLORED: 0xFFFFFF,
@@ -46,9 +48,10 @@ addNode(siteName, {
 let currentSite = siteName
 
 const renderer = renderGraph(graph, {
+  is3d: true, // change to false to render a "flat graph in 3D"
   node(node) {
     return getNodeUIDetails(node)
-  }
+  },
 });
 
 renderer.on('nodeclick', nodeclickHandler);
@@ -112,6 +115,8 @@ function getNodeUIDetails(node) {
   };
 }
 
+let stabalizeTimeout
+
 async function explore(node) {
   const data = {}
   data.explored = true
@@ -134,6 +139,10 @@ async function explore(node) {
   }
 
   renderer.stable(false)
+  clearTimeout(stabalizeTimeout)
+  stabalizeTimeout = setTimeout(() => {
+    renderer.stable(true)
+  }, TIME_TO_STABALIZE_IN_MS)
   return data
 }
 
@@ -168,6 +177,7 @@ async function fetchDescription(site) {
 window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
   const ESCAPE = 27
+  const G = 71
   switch (e.keyCode) {
     case SPACE_BAR:
       renderer.stable(true)
@@ -175,6 +185,9 @@ window.addEventListener("keydown", e => {
       break
     case ESCAPE:
       controls.hidden = !controls.hidden
+      break
+    case G:
+      renderer.showNode(currentSite)
       break
   }
 })
