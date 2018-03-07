@@ -5,6 +5,7 @@ defmodule Data.SiteDescription do
 
   @name __MODULE__
   @state_file "data/#{@name}.state"
+  @user_agent_pls_no_fbi "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
   @timeout_ms 100_000
 
   ##############
@@ -76,7 +77,12 @@ defmodule Data.SiteDescription do
 
   def get_description(site) do
     with {:ok, site_content} <-
-           HTTPoison.get("#{site}", %{}, recv_timeout: @timeout_ms, follow_redirect: true),
+           HTTPoison.get(
+             "#{site}",
+             %{"User-Agent" => @user_agent_pls_no_fbi},
+             recv_timeout: @timeout_ms,
+             follow_redirect: true
+           ),
          site_body <- Map.get(site_content, :body),
          tags = [{"meta", _, []}] <- Floki.find(site_body, "meta[name=description]"),
          content <- Floki.attribute(tags, "content") do
