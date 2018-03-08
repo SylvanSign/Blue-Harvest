@@ -17,6 +17,7 @@ const descriptionLabel = document.querySelector("#descriptionLabel")
 const controlsInfo = document.querySelector("#controls")
 
 function setSiteLabel(text) {
+  siteLabel.href = `http://${text}`
   siteLabel.textContent = text
 }
 
