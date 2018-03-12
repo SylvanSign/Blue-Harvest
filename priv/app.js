@@ -4,6 +4,56 @@ const renderGraph = require('ngraph.pixel');
 
 const TIME_TO_STABALIZE_IN_MS = 3000
 
+const AUTO_EXPLORE_INTERVAL = 1000 // ms
+let exploreQueue = []
+let autoExploring = false
+
+function toggleAutoExplore() {
+  autoExploring = !autoExploring
+  autoExploreWarning.hidden = !autoExploreWarning.hidden
+  if (autoExploring) {
+    populateExploreQueue()
+    autoExplore()
+  }
+}
+
+function populateExploreQueue() {
+  graph.forEachNode(node => {
+    const {
+      data: {
+        explored
+      }
+    } = node
+    if (!explored) {
+      exploreQueue.push(node)
+    }
+  })
+}
+
+async function autoExplore() {
+  if (autoExploring) {
+    const nextNodeToExplore = getNextNodeToExplore()
+    await nodeclickHandler(nextNodeToExplore)
+    if (autoExploring) {
+      setTimeout(autoExplore, AUTO_EXPLORE_INTERVAL)
+    }
+  }
+}
+
+function getNextNodeToExplore() {
+  const nextNode = exploreQueue.shift()
+  if (!nextNode) {
+    return null
+  }
+
+  const {
+    data: {
+      explored
+    }
+  } = nextNode
+  return explored ? getNextNodeToExplore() : nextNode
+}
+
 const Colors = {
   START: 0x0A25E2,
   UNEXPLORED: 0xFFFFFF,
@@ -15,6 +65,9 @@ const Colors = {
 const siteLabel = document.querySelector("#siteLabel")
 const descriptionLabel = document.querySelector("#descriptionLabel")
 const controlsInfo = document.querySelector("#controls")
+const autoExploreWarning = document.querySelector("#autoExploreWarning")
+// disable right click menu so it doesn't ruin the immersion
+document.querySelector("body").addEventListener('contextmenu', event => event.preventDefault())
 
 function setSiteLabel(text) {
   siteLabel.href = `http://${text}`
@@ -46,6 +99,7 @@ addNode(siteName, {
   start: true,
   explored: false,
 })
+exploreQueue.push(graph.getNode(siteName))
 let currentSite = siteName
 
 const renderer = renderGraph(graph, {
@@ -74,7 +128,6 @@ async function nodeclickHandler(node) {
 
     setSiteLabel(node.id)
     setDescriptionLabel(data.description)
-
   }
 }
 
@@ -133,6 +186,7 @@ async function explore(node) {
       addNode(site, {
         explored: false
       })
+      exploreQueue.push(graph.getNode(site))
     }
     if (!hasLink(node.id, site)) {
       addLink(node.id, site)
@@ -179,9 +233,9 @@ window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
   const ESCAPE = 27
   const G = 71
+  const P = 80
   switch (e.keyCode) {
     case SPACE_BAR:
-      renderer.stable(true)
       renderer.autoFit()
       break
     case ESCAPE:
@@ -189,6 +243,9 @@ window.addEventListener("keydown", e => {
       break
     case G:
       renderer.showNode(currentSite)
+      break
+    case P:
+      toggleAutoExplore()
       break
   }
 })
