@@ -75,10 +75,10 @@ defmodule Data.Favicon do
   end
 
   defp get_image(url) do
-    search_url = ["http://www.google.com/s2/favicons?domain=", url]
+    search_url = "http://www.google.com/s2/favicons?domain=#{url}"
 
     case HTTPoison.get(
-           "#{search_url}",
+           search_url,
            %{"User-Agent" => @user_agent_pls_no_fbi},
            recv_timeout: @timeout_ms,
            follow_redirect: true
