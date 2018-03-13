@@ -64,6 +64,7 @@ const Colors = {
 
 const siteLabel = document.querySelector("#siteLabel")
 const descriptionLabel = document.querySelector("#descriptionLabel")
+const icon = document.querySelector("#icon")
 const controlsInfo = document.querySelector("#controls")
 const autoExploreWarning = document.querySelector("#autoExploreWarning")
 // disable right click menu so it doesn't ruin the immersion
@@ -76,6 +77,10 @@ function setSiteLabel(text) {
 
 function setDescriptionLabel(text) {
   descriptionLabel.textContent = text
+}
+
+function setIcon(image) {
+  icon.src = 'data:image/jpeg;base64,' + image;
 }
 
 function hasNode(id) {
@@ -128,6 +133,8 @@ async function nodeclickHandler(node) {
 
     setSiteLabel(node.id)
     setDescriptionLabel(data.description)
+    setIcon(data.image);
+
   }
 }
 
@@ -174,12 +181,14 @@ let stabalizeTimeout
 async function explore(node) {
   const data = {}
   data.explored = true
-  const [similarSites, description] = await Promise.all([
+  const [similarSites, description, image] = await Promise.all([
     fetchSimilarSites(node.id),
     fetchDescription(node.id),
+    fetchImage(node.id),
   ])
   data.similarSites = similarSites
   data.description = description
+  data.image = image
 
   for (const site of similarSites) {
     if (!hasNode(site)) {
@@ -226,6 +235,22 @@ async function fetchDescription(site) {
     return description;
   } catch (err) {
     return "Sorry, we couldn't find a description for this site!" // description is a "nice to have"
+  }
+}
+
+async function fetchImage(site) {
+  if (site === '') {
+    throw new Error("fetchImage called with empty site")
+  }
+  try {
+    const response = await fetch(`/image?site=${encodeURIComponent(site)}`)
+    console.log(response)
+    const {
+      image
+    } = await response.json()
+    return image;
+  } catch (err) {
+    return "Sorry, we couldn't find an image for this site!" // image is a "nice to have"
   }
 }
 

@@ -4,6 +4,7 @@ defmodule Router.Dynamic do
   use Plug.Router
   import Data.AlexaSimilarSites
   import Data.SiteDescription
+  import Data.Favicon
 
   plug(:match)
   plug(:fetch_query_params)
@@ -23,6 +24,16 @@ defmodule Router.Dynamic do
     case conn.query_params do
       %{"site" => site} ->
         handle_site_description(conn, site)
+
+      _ ->
+        handle_error(conn)
+    end
+  end
+
+  get "/image" do
+    case conn.query_params do
+      %{"site" => site} ->
+        handle_image(conn, site)
 
       _ ->
         handle_error(conn)
@@ -49,6 +60,16 @@ defmodule Router.Dynamic do
     conn
     |> put_resp_content_type("text/json")
     |> send_resp(200, description_json)
+  end
+
+  def handle_image(conn, site) do
+    image = site |> URI.decode() |> get_site_image()
+    base64_image = Base.encode64(image)
+    image_json = Jason.encode!(%{image: base64_image})
+
+    conn
+    |> put_resp_content_type("text/json")
+    |> send_resp(200, image_json)
   end
 
   def handle_error(conn) do
