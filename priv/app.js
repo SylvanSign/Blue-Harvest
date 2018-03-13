@@ -80,7 +80,13 @@ function setDescriptionLabel(text) {
 }
 
 function setIcon(image) {
-  icon.src = 'data:image/jpeg;base64,' + image;
+  if (image === "") {
+    icon.hidden = true;
+  } else {
+    icon.hidden = false;
+    icon.src = 'data:image/jpeg;base64,' + image;
+  }
+
 }
 
 function hasNode(id) {
@@ -125,6 +131,7 @@ async function nodeclickHandler(node) {
     move(currentSite, node.id)
     setSiteLabel("Fetching site data...")
     setDescriptionLabel("")
+    setIcon("");
 
     if (!data.explored) {
       const explorationData = await explore(node)

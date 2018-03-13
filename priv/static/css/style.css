@@ -45,3 +45,9 @@ a:visited {
 a:active {
   color: white;
 }
+
+img {
+  background-color: #fff;
+  padding: 1px;
+  border-radius: 500px;
+}
