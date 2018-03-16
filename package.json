@@ -16,7 +16,8 @@
   },
   "scripts": {
     "bundle": "browserify priv/app.js -o priv/static/scripts/bundle.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "browserify priv/app.js -o priv/static/scripts/bundle.js"
   },
   "repository": {
     "type": "git",

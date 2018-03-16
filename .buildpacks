@@ -1,0 +1,4 @@
+https://github.com/heroku/heroku-buildpack-nodejs.git
+https://github.com/gigalixir/gigalixir-buildpack-clean-cache.git
+https://github.com/HashNuke/heroku-buildpack-elixir
+https://github.com/gigalixir/gigalixir-buildpack-distillery.git
