@@ -3,7 +3,7 @@ require Logger
 defmodule BlueHarvest.Application do
   use Application
 
-  @port 9000
+  @port System.get_env("PORT") || 4000
 
   def start(_type, _args) do
     # List all child processes to be supervised
