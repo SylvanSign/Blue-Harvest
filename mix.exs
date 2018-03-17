@@ -15,7 +15,6 @@ defmodule BlueHarvest.MixProject do
   def application do
     [
       mod: {BlueHarvest.Application, []},
-      applications: [:cowboy, :plug, :httpoison],
       extra_applications: [:logger]
     ]
   end
