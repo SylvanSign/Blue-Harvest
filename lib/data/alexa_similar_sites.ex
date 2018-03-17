@@ -1,10 +1,11 @@
 require Logger
+import Util.Priv
 
 defmodule Data.AlexaSimilarSites do
   use GenServer
 
   @name __MODULE__
-  @state_file "data/#{@name}.state"
+  @state_file "#{@name}.state"
   @site_info_url "https://www.alexa.com/find-similar-sites/data?site="
   @timeout_ms 10_000
 
@@ -62,15 +63,18 @@ defmodule Data.AlexaSimilarSites do
   # PRIVATE HELPERS #
   ###################
   defp load_state() do
-    case File.read(@state_file) do
+    state_path = Path.join(get_priv_dir(), @state_file)
+
+    case File.read(state_path) do
       {:ok, saved_state} -> :erlang.binary_to_term(saved_state)
       {:error, :enoent} -> {%{}, %{}}
     end
   end
 
   defp save_state(state) do
+    state_path = Path.join(get_priv_dir(), @state_file)
     binary_state = :erlang.term_to_binary(state)
-    File.write!(@state_file, binary_state)
+    File.write!(state_path, binary_state)
   end
 
   defp fetch_data_from_alexa(host) do

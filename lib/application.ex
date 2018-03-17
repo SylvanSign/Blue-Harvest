@@ -3,19 +3,19 @@ require Logger
 defmodule BlueHarvest.Application do
   use Application
 
-  @port System.get_env("PORT") || 4000
-
   def start(_type, _args) do
+    port = System.get_env("PORT") || 4000
+
     # List all child processes to be supervised
     children = [
       # Define workers and child supervisors to be supervised
-      Plug.Adapters.Cowboy.child_spec(scheme: :http, plug: Router, options: [port: @port]),
+      Plug.Adapters.Cowboy.child_spec(scheme: :http, plug: Router, options: [port: port]),
       Data.AlexaSimilarSites,
       Data.SiteDescription,
       Data.Favicon
     ]
 
-    Logger.info("Router listening at http://localhost:#{@port}")
+    Logger.info("Router listening at http://localhost:#{port}")
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
