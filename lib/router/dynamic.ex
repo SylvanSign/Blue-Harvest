@@ -2,7 +2,7 @@ require Logger
 
 defmodule Router.Dynamic do
   use Plug.Router
-  import Data.AlexaSimilarSites
+  import Data.AlexaSiteInfo
   import Data.SiteDescription
   import Data.Favicon
 

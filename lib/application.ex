@@ -10,7 +10,7 @@ defmodule BlueHarvest.Application do
     children = [
       # Define workers and child supervisors to be supervised
       Plug.Adapters.Cowboy.child_spec(scheme: :http, plug: Router, options: [port: port]),
-      Data.AlexaSimilarSites,
+      Data.AlexaSiteInfo,
       Data.SiteDescription,
       Data.Favicon
     ]

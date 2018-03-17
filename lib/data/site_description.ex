@@ -1,11 +1,9 @@
 require Logger
-import Util.Priv
 
 defmodule Data.SiteDescription do
-  use GenServer
+  use Agent
 
   @name __MODULE__
-  @state_file "#{@name}.state"
   @user_agent_pls_no_fbi "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
   @timeout_ms 100_000
 
@@ -13,67 +11,36 @@ defmodule Data.SiteDescription do
   # PUBLIC API #
   ##############
   def start_link([]) do
-    GenServer.start_link(@name, :ok, name: @name)
+    Agent.start_link(fn ->
+      {:ok, @name} = Util.PersistentCache.load(@name)
+      :ok
+    end)
   end
 
   def get_site_description(url) do
-    GenServer.call(@name, {:get_site_description, url})
-  end
-
-  # TODO remove this function after thouroughly testing this module
-  def inspect_state do
-    GenServer.call(@name, :inspect)
-  end
-
-  ####################
-  # SERVER CALLBACKS #
-  ####################
-  def init(:ok) do
-    state = load_state()
-
-    {:ok, state}
-  end
-
-  def handle_call({:get_site_description, url}, _from, descriptions) do
-    case Map.get(descriptions, url) do
+    case Util.PersistentCache.get(@name, url) do
       nil ->
-        Logger.info("Cache miss - '#{url}' - Site description - Fetching.")
-
-        case get_blurb(url) do
-          {:ok, description} ->
-            descriptions = Map.put(descriptions, url, description)
-            save_state(descriptions)
-            Logger.info("Serving '#{url}' - Site description - from cache")
-            {:reply, description, descriptions}
-
-          {:error, error_message} ->
-            Logger.info("Failed to find '#{url}'")
-            {:reply, error_message, descriptions}
-        end
+        update_cache_and_return_description(url)
 
       description ->
         Logger.info("Serving '#{url}' - Site description - from cache")
-        {:reply, description, descriptions}
+        description
     end
   end
 
-  def handle_call(:inspect, _from, state) do
-    {:reply, state, state}
-  end
+  defp update_cache_and_return_description(url) do
+    Logger.info("Cache miss - '#{url}' - Site description - Fetching.")
 
-  ###################
-  # PRIVATE HELPERS #
-  ###################
-  defp load_state() do
-    case File.read(get_priv_path(@state_file)) do
-      {:ok, saved_state} -> :erlang.binary_to_term(saved_state)
-      {:error, :enoent} -> %{}
+    case get_blurb(url) do
+      {:ok, description} ->
+        Util.PersistentCache.put(@name, url, description)
+        Logger.info("Serving '#{url}' - Site description - from cache")
+        description
+
+      {:error, error_message} ->
+        Logger.info("Failed to find '#{url}'")
+        error_message
     end
-  end
-
-  defp save_state(state) do
-    binary_state = :erlang.term_to_binary(state)
-    File.write!(get_priv_path(@state_file), binary_state)
   end
 
   defp get_description(html) do

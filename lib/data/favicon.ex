@@ -1,78 +1,42 @@
 require Logger
-import Util.Priv
 
 defmodule Data.Favicon do
-  use GenServer
+  use Agent
 
   @name __MODULE__
-  @state_file "#{@name}.state"
   @user_agent_pls_no_fbi "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
   @timeout_ms 100_000
 
-  ##############
-  # PUBLIC API #
-  ##############
   def start_link([]) do
-    GenServer.start_link(@name, :ok, name: @name)
+    Agent.start_link(fn ->
+      {:ok, @name} = Util.PersistentCache.load(@name)
+      :ok
+    end)
   end
 
   def get_site_image(url) do
-    GenServer.call(@name, {:get_image, url})
-  end
-
-  # TODO remove this function after thouroughly testing this module
-  def inspect_state do
-    GenServer.call(@name, :inspect)
-  end
-
-  ####################
-  # SERVER CALLBACKS #
-  ####################
-  def init(:ok) do
-    state = load_state()
-
-    {:ok, state}
-  end
-
-  def handle_call({:get_image, url}, _from, images) do
-    case Map.get(images, url) do
+    case Util.PersistentCache.get(@name, url) do
       nil ->
-        Logger.info("Cache miss - '#{url}' - Image - Fetching.")
-
-        case get_image(url) do
-          {:ok, image} ->
-            images = Map.put(images, url, image)
-            save_state(images)
-            {:reply, image, images}
-
-          {:error, error_message} ->
-            Logger.info("Failed to find image for '#{url}'")
-            {:reply, error_message, images}
-        end
+        update_cache_and_return_image(url)
 
       image ->
         Logger.info("Serving '#{url}' - Image - from cache")
-        {:reply, image, images}
+        image
     end
   end
 
-  def handle_call(:inspect, _from, state) do
-    {:reply, state, state}
-  end
+  defp update_cache_and_return_image(url) do
+    Logger.info("Cache miss - '#{url}' - Image - Fetching.")
 
-  ###################
-  # PRIVATE HELPERS #
-  ###################
-  defp load_state() do
-    case File.read(get_priv_path(@state_file)) do
-      {:ok, saved_state} -> :erlang.binary_to_term(saved_state)
-      {:error, :enoent} -> %{}
+    case get_image(url) do
+      {:ok, image} ->
+        Util.PersistentCache.put(@name, url, image)
+        image
+
+      {:error, error_message} ->
+        Logger.info("Failed to find image for '#{url}'")
+        error_message
     end
-  end
-
-  defp save_state(state) do
-    binary_state = :erlang.term_to_binary(state)
-    File.write!(get_priv_path(@state_file), binary_state)
   end
 
   defp get_image(url) do

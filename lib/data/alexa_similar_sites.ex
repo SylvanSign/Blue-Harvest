@@ -1,77 +1,39 @@
 require Logger
-import Util.Priv
 
-defmodule Data.AlexaSimilarSites do
-  use GenServer
+defmodule Data.AlexaSiteInfo do
+  use Agent
 
   @name __MODULE__
-  @state_file "#{@name}.state"
+  @similar :"#{@name}-similar"
+  @ranks :"#{@name}-ranks"
   @site_info_url "https://www.alexa.com/find-similar-sites/data?site="
   @timeout_ms 10_000
 
-  ##############
-  # PUBLIC API #
-  ##############
   def start_link([]) do
-    GenServer.start_link(@name, :ok, name: @name)
+    Agent.start_link(fn ->
+      {:ok, @similar} = Util.PersistentCache.load(@similar)
+      {:ok, @ranks} = Util.PersistentCache.load(@ranks)
+      :ok
+    end)
   end
 
   def get_similar_sites(url) do
-    GenServer.call(@name, {:get_similar_sites, url})
-  end
-
-  # TODO remove this function after thouroughly testing this module
-  def inspect_state do
-    GenServer.call(@name, :inspect)
-  end
-
-  ####################
-  # SERVER CALLBACKS #
-  ####################
-  def init(:ok) do
-    state = load_state()
-
-    {:ok, state}
-  end
-
-  def handle_call({:get_similar_sites, url}, _from, state = {similar, ranks}) do
-    case Map.get(similar, url) do
+    case Util.PersistentCache.get(@similar, url) do
       nil ->
-        Logger.info("Cache miss - '#{url}' - Alexa info - Fetching.")
-
-        {alexa_ranks, similar_sites_with_similarity_ranks} = fetch_data_from_alexa(url)
-
-        ranks = Map.merge(ranks, alexa_ranks)
-
-        similar = Map.put(similar, url, similar_sites_with_similarity_ranks)
-
-        state = {similar, ranks}
-        save_state(state)
-        {:reply, similar[url], state}
+        update_caches(url)
+        Util.PersistentCache.get(@similar, url)
 
       similar_sites ->
         Logger.info("Serving '#{url}' - Alexa info - from cache")
-        {:reply, similar_sites, state}
+        similar_sites
     end
   end
 
-  def handle_call(:inspect, _from, state) do
-    {:reply, state, state}
-  end
-
-  ###################
-  # PRIVATE HELPERS #
-  ###################
-  defp load_state() do
-    case File.read(get_priv_path(@state_file)) do
-      {:ok, saved_state} -> :erlang.binary_to_term(saved_state)
-      {:error, :enoent} -> {%{}, %{}}
-    end
-  end
-
-  defp save_state(state) do
-    binary_state = :erlang.term_to_binary(state)
-    File.write!(get_priv_path(@state_file), binary_state)
+  defp update_caches(url) do
+    Logger.info("Cache miss - '#{url}' - Alexa info - Fetching.")
+    {alexa_ranks, similar_sites_with_similarity_ranks} = fetch_data_from_alexa(url)
+    Util.PersistentCache.put_many(@ranks, alexa_ranks)
+    Util.PersistentCache.put(@similar, url, similar_sites_with_similarity_ranks)
   end
 
   defp fetch_data_from_alexa(host) do
@@ -92,7 +54,9 @@ defmodule Data.AlexaSimilarSites do
         Map.put(rankings, site_entry["site2"], site_entry["alexa_rank"])
       end)
 
-    alexa_ranks = Map.put(similar_sites_with_alexa_ranks, host, main_site_info["alexa_rank"])
+    alexa_ranks =
+      Map.put(similar_sites_with_alexa_ranks, host, main_site_info["alexa_rank"])
+      |> Map.to_list()
 
     {alexa_ranks, similar_sites_with_similarity_ranks}
   end
