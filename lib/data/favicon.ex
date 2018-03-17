@@ -64,18 +64,15 @@ defmodule Data.Favicon do
   # PRIVATE HELPERS #
   ###################
   defp load_state() do
-    state_path = Path.join(get_priv_dir(), @state_file)
-
-    case File.read(state_path) do
+    case File.read(get_priv_path(@state_file)) do
       {:ok, saved_state} -> :erlang.binary_to_term(saved_state)
       {:error, :enoent} -> %{}
     end
   end
 
   defp save_state(state) do
-    state_path = Path.join(get_priv_dir(), @state_file)
     binary_state = :erlang.term_to_binary(state)
-    File.write!(state_path, binary_state)
+    File.write!(get_priv_path(@state_file), binary_state)
   end
 
   defp get_image(url) do

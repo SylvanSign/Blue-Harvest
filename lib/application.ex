@@ -4,7 +4,7 @@ defmodule BlueHarvest.Application do
   use Application
 
   def start(_type, _args) do
-    port = String.to_integer(System.get_env("PORT")) || 4000
+    port = (System.get_env("PORT") || "4000") |> String.to_integer()
 
     # List all child processes to be supervised
     children = [
