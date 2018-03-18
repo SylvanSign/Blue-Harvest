@@ -24,12 +24,14 @@ const descriptionLabel = document.querySelector("#descriptionLabel")
 const icon = document.querySelector("#icon")
 const controlsInfo = document.querySelector("#controls")
 const autoExploreWarning = document.querySelector("#autoExploreWarning")
+const siteName = document.querySelector("#siteName")
 // disable right click menu so it doesn't ruin the immersion
 document.querySelector("body").addEventListener('contextmenu', event => event.preventDefault())
 
 window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
   const ESCAPE = 27
+  const ENTER = 13
   const G = 71
   const P = 80
   switch (e.keyCode) {
@@ -38,6 +40,9 @@ window.addEventListener("keydown", e => {
       break
     case ESCAPE:
       controls.hidden = !controls.hidden
+      break
+    case ENTER:
+      reset(siteName.value)
       break
     case G:
       renderer.showNode(currentSite)
@@ -50,7 +55,17 @@ window.addEventListener("keydown", e => {
 
 reset(location.hash && location.hash.slice(1) || "google.com")
 
+renderer = renderGraph(graph, {
+  is3d: true, // change to false to render a "flat graph in 3D"
+  node(node) {
+    return getNodeUIDetails(node)
+  },
+});
+
+renderer.on('nodeclick', nodeclickHandler);
+
 function reset(siteName) {
+  graph.clear()
   currentSite = siteName
   exploreQueue = []
   autoExploring = false
@@ -61,15 +76,6 @@ function reset(siteName) {
   })
 
   exploreQueue.push(graph.getNode(siteName))
-
-  renderer = renderGraph(graph, {
-    is3d: true, // change to false to render a "flat graph in 3D"
-    node(node) {
-      return getNodeUIDetails(node)
-    },
-  });
-
-  renderer.on('nodeclick', nodeclickHandler);
 }
 
 function toggleAutoExplore() {
