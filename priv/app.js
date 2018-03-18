@@ -24,7 +24,7 @@ const descriptionLabel = document.querySelector("#descriptionLabel")
 const icon = document.querySelector("#icon")
 const controlsInfo = document.querySelector("#controls")
 const autoExploreWarning = document.querySelector("#autoExploreWarning")
-const siteName = document.querySelector("#siteName")
+const siteSearch = document.querySelector("#siteSearch")
 // disable right click menu so it doesn't ruin the immersion
 document.querySelector("body").addEventListener('contextmenu', event => event.preventDefault())
 document.querySelector("#exploreButton").onclick = teleportToSite
@@ -37,7 +37,7 @@ window.addEventListener("keydown", e => {
   const ENTER = 13
   const G = 71
   const P = 80
-  if (siteName === document.activeElement) {
+  if (siteSearch === document.activeElement) {
     if (e.keyCode === ENTER) {
       teleportToSite()
     }
@@ -60,7 +60,7 @@ window.addEventListener("keydown", e => {
   }
 })
 
-reset(location.hash && location.hash.slice(1) || "google.com")
+reset("google.com") // Just so the renderer doesn't break. Ideally 2D removes need.
 
 renderer = renderGraph(graph, {
   is3d: true, // change to false to render a "flat graph in 3D"
@@ -91,16 +91,20 @@ function reset(siteName) {
 }
 
 function teleportToSite() {
-  reset(siteName.value)
+  reset(siteSearch.value)
   document.querySelector("canvas").hidden = false
   document.querySelector("#mapLabels").hidden = false
-  document.querySelector("#landingLabels").hidden = true
+  document.querySelector("#landingLabelsContainer").hidden = true
 }
 
 function goToLandingPage() {
   document.querySelector("canvas").hidden = true
   document.querySelector("#mapLabels").hidden = true
-  document.querySelector("#landingLabels").hidden = false
+  document.querySelector("#landingLabelsContainer").hidden = false
+
+  siteSearch.focus()
+  siteSearch.value = ""
+
 }
 
 function toggleAutoExplore() {

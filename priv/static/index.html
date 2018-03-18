@@ -12,15 +12,15 @@
 </head>
 
 <body>
-  <div id="landingLabels" class="centerFlex">
-    <div id="tagline">Enter a website you love. Discover more like it.</div>
-    <br>
-    <input type="text" id="siteName" class="input-group-text">
-    <button type="button" id="exploreButton" class="btn-primary">Explore!</button>
+  <div id="landingLabelsContainer">
+    <div id="landingLabels">
+      <input type="text" id="siteSearch" class="input-lg" placeholder="Enter a website you love. Discover more like it." autofocus>
+      <button type="button" id="exploreButton" class="btn-primary btn-lg">Explore!</button>
+    </div>
   </div>
 
   <div id="mapLabels" hidden=false>
-    <img src="https://image.flaticon.com/icons/svg/126/126492.svg" id="backButton">
+    <img src="/images/back.svg" id="backButton">
     <br>
     <img id="icon" />
     <a id="siteLabel" target="_blank" rel="noopener noreferrer" class="center-div"></a>
