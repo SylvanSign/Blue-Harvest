@@ -27,6 +27,8 @@ const autoExploreWarning = document.querySelector("#autoExploreWarning")
 const siteName = document.querySelector("#siteName")
 // disable right click menu so it doesn't ruin the immersion
 document.querySelector("body").addEventListener('contextmenu', event => event.preventDefault())
+document.querySelector("#exploreButton").onclick = teleportToSite
+document.querySelector("#backButton").onclick = goToLandingPage
 
 window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
@@ -34,23 +36,25 @@ window.addEventListener("keydown", e => {
   const ENTER = 13
   const G = 71
   const P = 80
-  switch (e.keyCode) {
-    case SPACE_BAR:
-      renderer.autoFit()
-      break
-    case ESCAPE:
-      controls.hidden = !controls.hidden
-      break
-    case ENTER:
-      reset(siteName.value)
-      document.querySelector("canvas").hidden = false
-      break
-    case G:
-      renderer.showNode(currentSite)
-      break
-    case P:
-      toggleAutoExplore()
-      break
+  if (siteName === document.activeElement) {
+    if (e.keyCode === ENTER) {
+      teleportToSite()
+    }
+  } else {
+    switch (e.keyCode) {
+      case SPACE_BAR:
+        renderer.autoFit()
+        break
+      case ESCAPE:
+        controls.hidden = !controls.hidden
+        break
+      case G:
+        renderer.showNode(currentSite)
+        break
+      case P:
+        toggleAutoExplore()
+        break
+    }
   }
 })
 
@@ -65,13 +69,16 @@ renderer = renderGraph(graph, {
 
 renderer.on('nodeclick', nodeclickHandler);
 
-document.querySelector("canvas").hidden = true
+goToLandingPage()
 
 function reset(siteName) {
   graph.clear()
   currentSite = siteName
   exploreQueue = []
   autoExploring = false
+  siteLabel.textContent = ""
+  descriptionLabel.textContent = ""
+  icon.hidden = true
 
   addNode(siteName, {
     start: true,
@@ -79,6 +86,19 @@ function reset(siteName) {
   })
 
   exploreQueue.push(graph.getNode(siteName))
+}
+
+function teleportToSite() {
+  reset(siteName.value)
+  document.querySelector("canvas").hidden = false
+  document.querySelector("#mapLabels").hidden = false
+  document.querySelector("#landingLabels").hidden = true
+}
+
+function goToLandingPage() {
+  document.querySelector("canvas").hidden = true
+  document.querySelector("#mapLabels").hidden = true
+  document.querySelector("#landingLabels").hidden = false
 }
 
 function toggleAutoExplore() {
@@ -143,7 +163,6 @@ function setIcon(image) {
     icon.hidden = false;
     icon.src = 'data:image/jpeg;base64,' + image;
   }
-
 }
 
 function hasNode(id) {
