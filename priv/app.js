@@ -5,8 +5,72 @@ const renderGraph = require('ngraph.pixel');
 const TIME_TO_STABALIZE_IN_MS = 3000
 
 const AUTO_EXPLORE_INTERVAL = 1000 // ms
-let exploreQueue = []
-let autoExploring = false
+let exploreQueue
+let autoExploring
+let currentSite
+let renderer
+let stabalizeTimeout
+
+const Colors = {
+  START: 0x0A25E2,
+  UNEXPLORED: 0xFFFFFF,
+  EXPLORED: 0xCBFF00,
+  CURRENT: 0xFB0000,
+  START_IS_CURRENT: 0xFF00FF,
+}
+
+const siteLabel = document.querySelector("#siteLabel")
+const descriptionLabel = document.querySelector("#descriptionLabel")
+const icon = document.querySelector("#icon")
+const controlsInfo = document.querySelector("#controls")
+const autoExploreWarning = document.querySelector("#autoExploreWarning")
+// disable right click menu so it doesn't ruin the immersion
+document.querySelector("body").addEventListener('contextmenu', event => event.preventDefault())
+
+window.addEventListener("keydown", e => {
+  const SPACE_BAR = 32
+  const ESCAPE = 27
+  const G = 71
+  const P = 80
+  switch (e.keyCode) {
+    case SPACE_BAR:
+      renderer.autoFit()
+      break
+    case ESCAPE:
+      controls.hidden = !controls.hidden
+      break
+    case G:
+      renderer.showNode(currentSite)
+      break
+    case P:
+      toggleAutoExplore()
+      break
+  }
+})
+
+reset(location.hash && location.hash.slice(1) || "google.com")
+
+function reset(siteName) {
+  currentSite = siteName
+  exploreQueue = []
+  autoExploring = false
+
+  addNode(siteName, {
+    start: true,
+    explored: false,
+  })
+
+  exploreQueue.push(graph.getNode(siteName))
+
+  renderer = renderGraph(graph, {
+    is3d: true, // change to false to render a "flat graph in 3D"
+    node(node) {
+      return getNodeUIDetails(node)
+    },
+  });
+
+  renderer.on('nodeclick', nodeclickHandler);
+}
 
 function toggleAutoExplore() {
   autoExploring = !autoExploring
@@ -54,22 +118,6 @@ function getNextNodeToExplore() {
   return explored ? getNextNodeToExplore() : nextNode
 }
 
-const Colors = {
-  START: 0x0A25E2,
-  UNEXPLORED: 0xFFFFFF,
-  EXPLORED: 0xCBFF00,
-  CURRENT: 0xFB0000,
-  START_IS_CURRENT: 0xFF00FF,
-}
-
-const siteLabel = document.querySelector("#siteLabel")
-const descriptionLabel = document.querySelector("#descriptionLabel")
-const icon = document.querySelector("#icon")
-const controlsInfo = document.querySelector("#controls")
-const autoExploreWarning = document.querySelector("#autoExploreWarning")
-// disable right click menu so it doesn't ruin the immersion
-document.querySelector("body").addEventListener('contextmenu', event => event.preventDefault())
-
 function setSiteLabel(text) {
   siteLabel.href = `http://${text}`
   siteLabel.textContent = text
@@ -104,23 +152,6 @@ function addNode(id, data) {
 function addLink(fromId, toId, data) {
   graph.addLink(fromId, toId, data)
 }
-
-const siteName = location.hash && location.hash.slice(1) || "google.com"
-addNode(siteName, {
-  start: true,
-  explored: false,
-})
-exploreQueue.push(graph.getNode(siteName))
-let currentSite = siteName
-
-const renderer = renderGraph(graph, {
-  is3d: true, // change to false to render a "flat graph in 3D"
-  node(node) {
-    return getNodeUIDetails(node)
-  },
-});
-
-renderer.on('nodeclick', nodeclickHandler);
 
 async function nodeclickHandler(node) {
   if (node) {
@@ -182,8 +213,6 @@ function getNodeUIDetails(node) {
     size,
   };
 }
-
-let stabalizeTimeout
 
 async function explore(node) {
   const data = {}
@@ -260,24 +289,3 @@ async function fetchImage(site) {
     return "Sorry, we couldn't find an image for this site!" // image is a "nice to have"
   }
 }
-
-window.addEventListener("keydown", e => {
-  const SPACE_BAR = 32
-  const ESCAPE = 27
-  const G = 71
-  const P = 80
-  switch (e.keyCode) {
-    case SPACE_BAR:
-      renderer.autoFit()
-      break
-    case ESCAPE:
-      controls.hidden = !controls.hidden
-      break
-    case G:
-      renderer.showNode(currentSite)
-      break
-    case P:
-      toggleAutoExplore()
-      break
-  }
-})
