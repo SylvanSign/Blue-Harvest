@@ -43,6 +43,7 @@ window.addEventListener("keydown", e => {
       break
     case ENTER:
       reset(siteName.value)
+      document.querySelector("canvas").hidden = false
       break
     case G:
       renderer.showNode(currentSite)
@@ -63,6 +64,8 @@ renderer = renderGraph(graph, {
 });
 
 renderer.on('nodeclick', nodeclickHandler);
+
+document.querySelector("canvas").hidden = true
 
 function reset(siteName) {
   graph.clear()
