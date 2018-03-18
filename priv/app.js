@@ -30,6 +30,7 @@ document.querySelector("body").addEventListener('contextmenu', event => event.pr
 document.querySelector("#exploreButton").onclick = teleportToSite
 document.querySelector("#backButton").onclick = goToLandingPage
 
+
 window.addEventListener("keydown", e => {
   const SPACE_BAR = 32
   const ESCAPE = 27
@@ -55,6 +56,7 @@ window.addEventListener("keydown", e => {
         toggleAutoExplore()
         break
     }
+
   }
 })
 
