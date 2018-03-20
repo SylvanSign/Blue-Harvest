@@ -46,10 +46,14 @@ a:active {
   color: white;
 }
 
-img {
+.round {
   background-color: white;
   padding: 1px;
   border-radius: 100%;
+}
+
+#logo {
+  width: 100%;
 }
 
 #backButton {
@@ -64,13 +68,14 @@ img {
 }
 
 #landingLabels {
-  margin-top: 25%;
+  margin-top: 15%;
 }
 
 #siteSearch {
-  font-size: 15px;
-  width: 65%;
+  width: 75%;
 }
+
+#exploreButton {}
 
 #tagline {
   font-size: 20px
