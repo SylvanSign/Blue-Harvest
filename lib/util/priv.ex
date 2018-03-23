@@ -1,6 +1,6 @@
 defmodule Util.Priv do
   def get_priv_path(filename) do
-    path = __MODULE__ |> Application.get_application() |> Application.app_dir("priv/data/")
+    path = Application.get_env(:blue_harvest, :data_path)
     Path.join(path, stringify(filename))
   end
 
