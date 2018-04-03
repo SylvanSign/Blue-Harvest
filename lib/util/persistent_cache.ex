@@ -16,13 +16,13 @@ defmodule Util.PersistentCache do
   end
 
   defp save(table) do
-    file_path = Util.Priv.get_priv_path("#{table}.state")
+    file_path = Util.Data.get_path("#{table}.state")
     # Note: :ets.tab2file/2 writes the file asynchronously
     :ets.tab2file(table, String.to_atom(file_path))
   end
 
   def load(table) do
-    file_path = Util.Priv.get_priv_path("#{table}.state")
+    file_path = Util.Data.get_path("#{table}.state")
 
     if File.exists?(file_path) do
       :ets.file2tab(String.to_atom(file_path))
