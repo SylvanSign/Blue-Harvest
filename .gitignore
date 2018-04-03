@@ -8,7 +8,7 @@
 /node_modules/
 
 # JS Bundle
-/priv/static/scripts/bundle.js
+/priv/static/bundle.js
 
 # The directory Mix will write compiled artifacts to.
 /_build/

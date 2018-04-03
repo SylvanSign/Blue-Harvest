@@ -9,15 +9,15 @@
   },
   "dependencies": {
     "ngraph.graph": "^0.0.14",
-    "ngraph.pixel": "^2.4.1"
+    "vivagraphjs": "^0.10.1"
   },
   "devDependencies": {
     "browserify": "^16.1.0"
   },
   "scripts": {
-    "bundle": "browserify priv/app.js -o priv/static/scripts/bundle.js",
+    "bundle": "browserify priv/js/app.js -o priv/static/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "browserify priv/app.js -o priv/static/scripts/bundle.js"
+    "postinstall": "npm run bundle"
   },
   "repository": {
     "type": "git",

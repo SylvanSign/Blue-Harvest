@@ -64,12 +64,10 @@ defmodule Router.Dynamic do
 
   def handle_image(conn, site) do
     image = site |> URI.decode() |> get_site_image()
-    base64_image = Base.encode64(image)
-    image_json = Jason.encode!(%{image: base64_image})
 
     conn
-    |> put_resp_content_type("text/json")
-    |> send_resp(200, image_json)
+    |> put_resp_content_type("image/png")
+    |> send_resp(200, image)
   end
 
   def handle_error(conn) do

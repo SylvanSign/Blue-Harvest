@@ -3,6 +3,13 @@ defmodule Router.Static do
 
   plug(:redirect_root_to_index)
 
+  # TEMP, this seems to fix my caching issue during development
+  # plug(
+  #   Plug.Static,
+  #   at: "/",
+  #   from: "./priv/static/"
+  # )
+
   plug(
     Plug.Static,
     at: "/",
