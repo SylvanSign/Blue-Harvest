@@ -49,9 +49,9 @@ function initializeGraph() {
     container: document.getElementById('graph-container'),
     layout: Viva.Graph.Layout.forceDirected(graph, {
       springLength: ICON_SIZE * 4,
+      gravity: -30,
       // springCoeff: 0.0005,
       // dragCoeff: 0.02,
-      gravity: -10,
     }),
   })
   window.r = renderer
@@ -99,7 +99,7 @@ function makeNodeClickHandler(params) {
 
       for (const site of similarSites) {
         addNode(site)
-        addLink(id, site)
+        setTimeout(() => addLink(id, site), 750)
       }
     }
   }
