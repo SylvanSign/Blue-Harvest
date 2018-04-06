@@ -44,14 +44,17 @@ function initializeGraph() {
   })
 
   // Render the graph with our customized graphics object:
+  const springLength = ICON_SIZE * 6
   const renderer = Viva.Graph.View.renderer(graph, {
     graphics: graphics,
     container: document.getElementById('graph-container'),
     layout: Viva.Graph.Layout.forceDirected(graph, {
-      springLength: ICON_SIZE * 4,
+      springLength,
       gravity: -30,
       // springCoeff: 0.0005,
-      // dragCoeff: 0.02,
+      springTransform(link, spring) {
+        spring.length = springLength * (1 - (link.data.overlap / 100));
+      }
     }),
   })
   window.r = renderer
@@ -97,9 +100,12 @@ function makeNodeClickHandler(params) {
       })
       ui.link(createImageUrl(id))
 
-      for (const site of similarSites) {
+      for (const site in similarSites) {
+        const overlap = similarSites[site]
         addNode(site)
-        setTimeout(() => addLink(id, site), 750)
+        setTimeout(() => addLink(id, site, {
+          overlap
+        }), 750)
       }
     }
   }

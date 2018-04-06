@@ -45,7 +45,7 @@ defmodule Router.Dynamic do
   end
 
   def handle_similar_sites(conn, site) do
-    similar_sites_list = site |> URI.decode() |> get_similar_sites() |> Enum.map(&elem(&1, 0))
+    similar_sites_list = site |> URI.decode() |> get_similar_sites()
     similar_sites_json = Jason.encode!(%{similarSites: similar_sites_list})
 
     conn
