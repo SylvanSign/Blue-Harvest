@@ -22,7 +22,7 @@ function initializeGraph() {
     const ui = Viva.Graph.svg('image')
       .attr('width', ICON_SIZE)
       .attr('height', ICON_SIZE)
-      .link('/images/blank_black.png')
+      .link('/images/question_mark.svg')
 
     ui.addEventListener('touchend', makeNodeClickHandler({
       node,
@@ -87,7 +87,7 @@ function makeNodeClickHandler(params) {
       // TODO maybe render the popup, but skip exploring
       return
     } else {
-      ui.link('/images/blank_red.png')
+      ui.link('/images/spinner.gif')
       const [similarSites, description] = await Promise.all([
         fetchSimilarSites(node.id),
         fetchDescription(node.id),
