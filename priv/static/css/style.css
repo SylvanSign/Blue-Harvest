@@ -72,7 +72,6 @@ svg,
 }
 
 .infoPopup {
-  pointer-events: all;
   background-color: white;
   color: black;
 }
