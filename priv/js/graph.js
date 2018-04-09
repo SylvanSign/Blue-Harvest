@@ -194,9 +194,16 @@ function makeNodeClickHandler(params) {
     activePopup.remove()
     if (activeId !== id) {
       activePopup = createPopup(node)
+
+      // make sure to reorder this ui as last node so it draws on top of rest of graph
+      const parentUI = ui.parentElement
+      ui.remove()
+      parentUI.appendChild(ui)
+
       ui.appendChild(activePopup)
       activeId = id
     } else {
+      // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
       activeId = null
     }
   }
