@@ -11,7 +11,6 @@ const ICON_SIZE = 32 // px
 const HALF_ICON_SIZE = ICON_SIZE / 2
 
 const graph = Viva.Graph.graph()
-window.g = graph
 const graphics = Viva.Graph.View.svgGraphics()
 initializeGraph()
 
@@ -19,28 +18,33 @@ function initializeGraph() {
   // This function let us override default node appearance and create
   // something better than blue dots:
   graphics.node(node => {
-    const ui = Viva.Graph.svg('image')
+    const ui = Viva.Graph.svg('g')
+
+    const img = Viva.Graph.svg('image')
       .attr('width', ICON_SIZE)
       .attr('height', ICON_SIZE)
       .link('/images/question_mark.svg')
 
     ui.addEventListener('touchend', makeNodeClickHandler({
       node,
-      ui
+      ui,
     }))
     ui.addEventListener('click', makeNodeClickHandler({
       node,
-      ui
+      ui,
     }))
 
+    ui.append(img)
     return ui
   })
 
   graphics.placeNode((nodeUI, pos) => {
-    // nodeUI - is exactly the same object that we returned from
-    //   node() callback above.
-    // pos - is calculated position for this node.
-    nodeUI.attr('x', pos.x - HALF_ICON_SIZE).attr('y', pos.y - HALF_ICON_SIZE)
+    // 'g' element doesn't have convenient (x,y) attributes, instead
+    // we have to deal with transforms: http://www.w3.org/TR/SVG/coords.html#SVGGlobalTransformAttribute
+    nodeUI.attr('transform',
+      'translate(' +
+      (pos.x - HALF_ICON_SIZE) + ',' + (pos.y - HALF_ICON_SIZE) +
+      ')');
   })
 
   // Render the graph with our customized graphics object:
@@ -57,8 +61,6 @@ function initializeGraph() {
       }
     }),
   })
-  window.r = renderer
-
   renderer.run()
 }
 
@@ -76,7 +78,6 @@ function makeNodeClickHandler(params) {
     if (event) {
       event.preventDefault()
     }
-    console.log(node)
 
     const {
       id,
@@ -87,7 +88,8 @@ function makeNodeClickHandler(params) {
       // TODO maybe render the popup, but skip exploring
       return
     } else {
-      ui.link('/images/spinner.gif')
+      const img = ui.querySelector('image')
+      img.link('/images/spinner.gif')
       const [similarSites, description] = await Promise.all([
         fetchSimilarSites(node.id),
         fetchDescription(node.id),
@@ -98,7 +100,31 @@ function makeNodeClickHandler(params) {
         similarSites,
         description,
       })
-      ui.link(createImageUrl(id))
+      img.link(createImageUrl(id))
+      const text = Viva.Graph.svg('text')
+        .attr('x', `${-4 - ICON_SIZE / 2}px`)
+        .attr('y', '-8px')
+        .text(node.id)
+
+      // delay this to event loop to ensure we can read text BBox
+      setTimeout(() => {
+        const {
+          x,
+          y,
+          width,
+          height
+        } = text.getBBox()
+        const rect = Viva.Graph.svg('rect')
+          .attr('x', x)
+          .attr('y', y)
+          .attr('width', width)
+          .attr('height', height)
+          .attr('fill', '#fff')
+        text.remove()
+        ui.append(rect)
+        ui.append(text)
+      }, 0)
+      ui.append(text)
 
       for (const site in similarSites) {
         const overlap = similarSites[site]
