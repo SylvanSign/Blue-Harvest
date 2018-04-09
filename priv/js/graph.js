@@ -12,7 +12,16 @@ const HALF_ICON_SIZE = ICON_SIZE / 2
 
 const graph = Viva.Graph.graph()
 const graphics = Viva.Graph.View.svgGraphics()
+let activeId
+let activePopup
+resetCurrentPopup()
 initializeGraph()
+
+function resetCurrentPopup() {
+  activePopup = {
+    remove() {} // Hacky way to initialize a faux dom node
+  }
+}
 
 function initializeGraph() {
   // This function let us override default node appearance and create
@@ -32,11 +41,11 @@ function initializeGraph() {
       .link('/images/question_mark.svg')
     ui.append(img)
 
-    ui.addEventListener('touchend', makeNodeClickHandler({
+    img.addEventListener('touchend', makeNodeClickHandler({
       node,
       ui,
     }))
-    ui.addEventListener('click', makeNodeClickHandler({
+    img.addEventListener('click', makeNodeClickHandler({
       node,
       ui,
     }))
@@ -70,6 +79,49 @@ function initializeGraph() {
   renderer.run()
 }
 
+window.c = createPopup
+
+function createPopup(node) {
+  const {
+    id,
+    data: {
+      description,
+    },
+  } = node
+
+  const f = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+  f.setAttribute('width', ICON_SIZE * 8)
+  // f.setAttribute('height', ICON_SIZE * 2)
+  // f.setAttribute('x', `-${ICON_SIZE / 2}px`)
+  f.setAttribute('y', `${ICON_SIZE}px`)
+
+  const hyperLink = createHyperLink(id)
+
+  const p = document.createElement('p')
+  p.classList.add('infoPopup')
+  const a = document.createElement('a')
+  a.setAttribute('href', hyperLink)
+  a.setAttribute('target', `_blank`)
+  a.setAttribute('rel', `noopener noreferrer`)
+  a.textContent = id
+  a.addEventListener('touchend', () => {
+    const newWindow = window.open()
+    newWindow.opener = null
+    newWindow.location = hyperLink
+  })
+  p.appendChild(a)
+  p.appendChild(document.createElement('br'))
+  p.appendChild(document.createTextNode(description))
+
+  f.appendChild(p)
+
+  return f
+}
+
+function createHyperLink(id) {
+  return `http://${id}`
+}
+
 function createImageUrl(site) {
   return `/image?site=${site}`
 }
@@ -90,10 +142,7 @@ function makeNodeClickHandler(params) {
       data,
     } = node
 
-    if (data.explored) {
-      // TODO maybe render the popup, but skip exploring
-      return
-    } else {
+    if (!data.explored) {
       const img = ui.querySelector('image')
       img.link('/images/spinner.gif')
       const [similarSites, description] = await Promise.all([
@@ -107,30 +156,31 @@ function makeNodeClickHandler(params) {
         description,
       })
       img.link(createImageUrl(id))
-      const text = Viva.Graph.svg('text')
-        .attr('x', `${-4 - ICON_SIZE / 2}px`)
-        .attr('y', '-8px')
-        .text(node.id)
 
-      // delay this to event loop to ensure we can read text BBox
-      setTimeout(() => {
-        const {
-          x,
-          y,
-          width,
-          height
-        } = text.getBBox()
-        const rect = Viva.Graph.svg('rect')
-          .attr('x', x)
-          .attr('y', y)
-          .attr('width', width)
-          .attr('height', height)
-          .attr('fill', '#fff')
-        text.remove()
-        ui.append(rect)
-        ui.append(text)
-      }, 0)
-      ui.append(text)
+      // TODO uncomment if we want perma-labels
+      // const text = Viva.Graph.svg('text')
+      //   .attr('y', '-8px')
+      //   .text(node.id)
+
+      // // delay this to event loop to ensure we can read text BBox
+      // setTimeout(() => {
+      //   const {
+      //     x,
+      //     y,
+      //     width,
+      //     height
+      //   } = text.getBBox()
+      //   const rect = Viva.Graph.svg('rect')
+      //     .attr('x', x)
+      //     .attr('y', y)
+      //     .attr('width', width)
+      //     .attr('height', height)
+      //     .attr('fill', '#fff')
+      //   text.remove()
+      //   ui.append(rect)
+      //   ui.append(text)
+      // }, 0)
+      // ui.append(text)
 
       for (const site in similarSites) {
         const overlap = similarSites[site]
@@ -139,6 +189,15 @@ function makeNodeClickHandler(params) {
           overlap
         }), 750)
       }
+    }
+
+    activePopup.remove()
+    if (activeId !== id) {
+      activePopup = createPopup(node)
+      ui.appendChild(activePopup)
+      activeId = id
+    } else {
+      activeId = null
     }
   }
 }
