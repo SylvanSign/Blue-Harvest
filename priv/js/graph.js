@@ -20,10 +20,17 @@ function initializeGraph() {
   graphics.node(node => {
     const ui = Viva.Graph.svg('g')
 
+    const backOfImage = Viva.Graph.svg('rect')
+      .attr('width', ICON_SIZE)
+      .attr('height', ICON_SIZE)
+      .attr('fill', '#fff')
+    ui.append(backOfImage)
+
     const img = Viva.Graph.svg('image')
       .attr('width', ICON_SIZE)
       .attr('height', ICON_SIZE)
       .link('/images/question_mark.svg')
+    ui.append(img)
 
     ui.addEventListener('touchend', makeNodeClickHandler({
       node,
@@ -34,7 +41,6 @@ function initializeGraph() {
       ui,
     }))
 
-    ui.append(img)
     return ui
   })
 
