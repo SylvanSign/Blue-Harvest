@@ -49,7 +49,7 @@ defmodule Data.AlexaSiteInfo do
     end
   end
 
-  defp get_alexa_data(%HTTPoison.Response{body: "{\"errors\":[\"Please enter a valid site.\"]}\n"}) do
+  defp get_alexa_data(%HTTPoison.Response{body: "{\"errors\":[\"" <> _}) do
     :error
   end
 
