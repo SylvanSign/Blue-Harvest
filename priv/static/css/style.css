@@ -75,3 +75,12 @@ svg,
   background-color: white;
   color: black;
 }
+
+#helper {
+  color: red;
+  padding-top: 10px;
+  font-family: "Helvetica";
+  font-size: 15px;
+}
+
+}
