@@ -7,6 +7,9 @@
 # Node Modules
 /node_modules/
 
+# Local Data Dir
+/data/
+
 # JS Bundle
 /priv/static/bundle.js
 

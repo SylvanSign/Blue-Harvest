@@ -63,16 +63,15 @@ function initializeGraph() {
   })
 
   // Render the graph with our customized graphics object:
-  const springLength = ICON_SIZE * 6
   const renderer = Viva.Graph.View.renderer(graph, {
     graphics: graphics,
     container: document.getElementById('graph-container'),
     layout: Viva.Graph.Layout.forceDirected(graph, {
-      springLength,
-      gravity: -30,
-      // springCoeff: 0.0005,
+      gravity: -10,
+      springCoeff: 0.001,
+      dragCoeff: 0.05,
       springTransform(link, spring) {
-        spring.length = springLength * (1 - (link.data.overlap / 100));
+        spring.length = (100 - link.data.overlap) * 2
       }
     }),
   })
