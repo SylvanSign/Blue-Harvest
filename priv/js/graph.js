@@ -71,8 +71,8 @@ function initializeGraph() {
       springCoeff: 0.001,
       dragCoeff: 0.05,
       springTransform(link, spring) {
-        spring.length = (100 - link.data.overlap) * 2
-      }
+        spring.length = (100 - link.data.overlap) * 3
+      },
     }),
   })
   renderer.run()
@@ -90,9 +90,7 @@ function createPopup(node) {
 
   const f = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
   f.setAttribute('width', ICON_SIZE * 8)
-  // f.setAttribute('height', ICON_SIZE * 2)
-  // f.setAttribute('x', `-${ICON_SIZE / 2}px`)
-  f.setAttribute('y', `${ICON_SIZE}px`)
+  f.setAttribute('y', ICON_SIZE)
 
   const hyperLink = createHyperLink(id)
 
@@ -167,46 +165,49 @@ function makeNodeClickHandler(params) {
       })
       img.link(createImageUrl(id))
 
-      // TODO uncomment if we want perma-labels
-      // const text = Viva.Graph.svg('text')
-      //   .attr('y', '-8px')
-      //   .text(node.id)
+      // TODO uncomment
+      // if we want perma - labels
+      const text = Viva.Graph.svg('text')
+        .attr('y', '-8px')
+        .text(node.id)
 
-      // // delay this to event loop to ensure we can read text BBox
-      // setTimeout(() => {
-      //   const {
-      //     x,
-      //     y,
-      //     width,
-      //     height
-      //   } = text.getBBox()
-      //   const rect = Viva.Graph.svg('rect')
-      //     .attr('x', x)
-      //     .attr('y', y)
-      //     .attr('width', width)
-      //     .attr('height', height)
-      //     .attr('fill', '#fff')
-      //   text.remove()
-      //   ui.append(rect)
-      //   ui.append(text)
-      // }, 0)
-      // ui.append(text)
+      // delay this to event loop to ensure we can read text BBox
+      setTimeout(() => {
+        const {
+          y,
+          width,
+          height
+        } = text.getBBox()
+        // computing x after rendering to center the label
+        const x = -(width - ICON_SIZE) / 2;
+        text.attr('x', x)
+        const rect = Viva.Graph.svg('rect')
+          .attr('x', x)
+          .attr('y', y)
+          .attr('width', width)
+          .attr('height', height)
+          .attr('fill', '#fff')
+        text.remove()
+        ui.append(rect)
+        ui.append(text)
+      }, 0)
+      ui.append(text)
 
       for (const site in similarSites) {
         const overlap = similarSites[site]
-        addNode(site)
-        setTimeout(() => addLink(id, site, {
+        addLink(id, site, {
           overlap
-        }), 750)
+        })
+        addNode(site)
       }
     }
 
-    // activePopup.remove()
-    highlightRelatedNodes(activeId, false);
+    activePopup.remove()
+    // highlightRelatedNodes(activeId, false);
 
     if (activeId !== id) {
-      highlightRelatedNodes(node.id, true)
-      // activePopup = createPopup(node)
+      // highlightRelatedNodes(node.id, true)
+      activePopup = createPopup(node)
 
       // make sure to reorder this ui as last node so it draws on top of rest of graph
       const parentUI = ui.parentElement
@@ -223,7 +224,8 @@ function makeNodeClickHandler(params) {
 }
 
 function addNode(id, data = {}) {
-  if (!graph.getNode(id)) { // TODO should use hasNode eventually
+  const node = graph.getNode(id)
+  if (!node || !node.data) { // TODO should use hasNode eventually
     graph.addNode(id, data)
   }
 }
