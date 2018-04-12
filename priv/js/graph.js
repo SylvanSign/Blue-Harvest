@@ -71,7 +71,7 @@ function initializeGraph() {
       springCoeff: 0.0001,
       dragCoeff: 0.05,
       springTransform(link, spring) {
-        spring.length = (100 - link.data.overlap) * 2
+        spring.length = (100 - link.data.overlap) * 3
       },
     }),
   })
@@ -164,7 +164,7 @@ function makeNodeClickHandler(params) {
 
       const similarNodePromises = []
       for (const site in similarSites) {
-        if (!hasNode(site)) {
+        if (!hasNode(site) || !hasLink(site, id)) {
           const overlap = similarSites[site]
           const similarPromise = delayPromise()
             .then(() => createNodeSpawnPromise({
@@ -176,8 +176,9 @@ function makeNodeClickHandler(params) {
         }
       }
       Promise.all(similarNodePromises)
+        .then(() => delayPromise(500))
         .then(() => img.link(createImageUrl(id)))
-        .then(() => delayPromise(1000))
+        .then(() => delayPromise(500))
         .then(() => {
           // TODO uncomment
           // if we want perma - labels
@@ -260,8 +261,12 @@ function hasNode(id) {
   return graph.getNode(id)
 }
 
+function hasLink(fromId, toId) {
+  return graph.getLink(fromId, toId)
+}
+
 function addLink(fromId, toId, data = {}) {
-  if (!graph.getLink(fromId, toId)) { // TODO should use hasLink eventually
+  if (!hasLink(fromId, toId)) { // TODO should use graph.hasLink eventually
     graph.addLink(fromId, toId, data)
   }
 }
