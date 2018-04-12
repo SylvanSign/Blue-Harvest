@@ -117,6 +117,17 @@ function createPopup(node) {
   return f
 }
 
+function highlightRelatedNodes(nodeId, isOn) {
+  // just enumerate all realted nodes and update link color:
+  graph.forEachLinkedNode(nodeId, (node, link) => {
+    const linkUI = graphics.getLinkUI(link.id);
+    if (linkUI) {
+      // linkUI is a UI object created by graphics below
+      linkUI.attr('stroke', isOn ? 'red' : 'gray');
+    }
+  });
+};
+
 function createHyperLink(id) {
   return `http://${id}`
 }
@@ -190,9 +201,12 @@ function makeNodeClickHandler(params) {
       }
     }
 
-    activePopup.remove()
+    // activePopup.remove()
+    highlightRelatedNodes(activeId, false);
+
     if (activeId !== id) {
-      activePopup = createPopup(node)
+      highlightRelatedNodes(node.id, true)
+      // activePopup = createPopup(node)
 
       // make sure to reorder this ui as last node so it draws on top of rest of graph
       const parentUI = ui.parentElement
