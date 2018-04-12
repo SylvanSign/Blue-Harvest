@@ -36,6 +36,8 @@ defmodule BlueHarvest.MixProject do
       {:floki, "~> 0.20.0"},
       # Help us properly distill links down the vital "host + top-level-domain"
       {:domainatrex, "~> 2.1.2"},
+      # Grabs the favicons
+      {:fetch_favicon, "~> 0.1.1"},
       ######################################################
       # Deps listed below are only needed for the AWIS API #
       ######################################################

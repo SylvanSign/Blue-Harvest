@@ -4,8 +4,6 @@ defmodule Data.Favicon do
   use Agent
 
   @name __MODULE__
-  @user_agent_pls_no_fbi "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
-  @timeout_ms 100_000
 
   def start_link([]) do
     Agent.start_link(fn ->
@@ -40,16 +38,8 @@ defmodule Data.Favicon do
   end
 
   defp get_image(url) do
-    search_url = "https://www.google.com/s2/favicons?domain=#{url}"
-
-    case HTTPoison.get(
-           search_url,
-           %{"User-Agent" => @user_agent_pls_no_fbi},
-           recv_timeout: @timeout_ms,
-           follow_redirect: true
-         ) do
-      {:ok, content} ->
-        image = Map.get(content, :body)
+    case FetchFavicon.fetch(url) do
+      {:ok, image} ->
         {:ok, image}
 
       _ ->
