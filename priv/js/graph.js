@@ -10,6 +10,8 @@ const {
 const ICON_SIZE = 32 // px
 const HALF_ICON_SIZE = ICON_SIZE / 2
 
+const infoPopup = document.querySelector("#infoPopup")
+
 const graph = Viva.Graph.graph()
 const graphics = Viva.Graph.View.svgGraphics()
 let activeId
@@ -71,14 +73,14 @@ function initializeGraph() {
       springCoeff: 0.0001,
       dragCoeff: 0.05,
       springTransform(link, spring) {
-        spring.length = (100 - link.data.overlap) * 2
+        spring.length = (100 - link.data.overlap)
       },
     }),
   })
   renderer.run()
 }
 
-function createPopup(node) {
+function displayActiveInfo(node) {
   const {
     id,
     data: {
@@ -86,9 +88,7 @@ function createPopup(node) {
     },
   } = node
 
-  const f = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
-  f.setAttribute('width', ICON_SIZE * 8)
-  f.setAttribute('y', ICON_SIZE)
+  infoPopup.innerHTML = ""
 
   const hyperLink = createHyperLink(id)
 
@@ -108,9 +108,9 @@ function createPopup(node) {
   p.appendChild(document.createElement('br'))
   p.appendChild(document.createTextNode(description))
 
-  f.appendChild(p)
+  infoPopup.appendChild(p)
 
-  return f
+  return infoPopup
 }
 
 function highlightRelatedNodes(nodeId, isOn) {
@@ -231,6 +231,7 @@ function makeNodeClickHandler(params) {
         highlightRelatedNodes(activeId, false)
       }
       if (activeId !== id) {
+        displayActiveInfo(node)
         highlightRelatedNodes(id, true)
 
         // make sure to reorder this ui as last node so it draws on top of rest of graph
@@ -242,6 +243,7 @@ function makeNodeClickHandler(params) {
       } else {
         // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
         activeId = null
+        infoPopup.innerHTML = ""
       }
     })
   }
@@ -296,6 +298,8 @@ function activateNode(id) {
 
 function clearGraph() {
   graph.clear()
+  activeId = null
+  infoPopup.innerHTML = ''
 }
 
 module.exports = {

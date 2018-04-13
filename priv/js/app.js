@@ -11,7 +11,7 @@ const {
   fetchSimilarSites
 } = require('./serverApi')
 
-const AUTO_ACTIVATION_DELAY = 1500 // ms
+const AUTO_ACTIVATION_DELAY = 500 // ms
 
 let currentSite
 let renderer
@@ -60,6 +60,7 @@ async function teleportToSite() {
     reset(name)
     document.querySelector("#mapLabels").hidden = false
     document.querySelector("#landingLabelsContainer").hidden = true
+    document.querySelector("#infoPopup").hidden = false
     document.querySelector('#helper').hidden = true
   } else {
     document.querySelector('#helper').hidden = false
@@ -69,6 +70,7 @@ async function teleportToSite() {
 function goToLandingPage() {
   document.querySelector("#mapLabels").hidden = true
   document.querySelector("#landingLabelsContainer").hidden = false
+  document.querySelector("#infoPopup").hidden = true
 
   siteSearch.focus()
   siteSearch.value = ""
