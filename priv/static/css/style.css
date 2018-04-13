@@ -75,18 +75,25 @@ input {
   text-transform: lowercase;
 }
 
-#infoPopup {
-  text-align: center;
-  position: fixed;
-  top: 80%;
+#infoContainer {
+  position: absolute;
   bottom: 0px;
-  left: 15%;
-  right: 15%;
+  left: 20%;
+  right: 20%;
+}
+
+#infoPopup {
+  text-align: justify;
+  position: relative;
+  float: left;
+  left: 50%;
+  transform: translate(-50%, 0%);
   background-color: white;
-  color: black;
-  font-size: 1.5rem;
+  /* border: 3px solid black; */
+  border-radius: 15px 15px 0px 0px;
   padding: 5px;
   overflow: auto;
+  font-size: 1.75rem;
 }
 
 #helper {

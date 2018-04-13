@@ -32,9 +32,12 @@ function initializeGraph() {
     const ui = Viva.Graph.svg('g')
 
     const backOfImage = Viva.Graph.svg('rect')
-      .attr('width', ICON_SIZE)
-      .attr('height', ICON_SIZE)
-      .attr('fill', '#fff')
+      .attr('x', HALF_ICON_SIZE / 2)
+      .attr('y', HALF_ICON_SIZE / 2)
+      .attr('width', HALF_ICON_SIZE)
+      .attr('height', HALF_ICON_SIZE)
+      .attr('fill', 'white')
+      .attr('id', 'nodeBG')
     ui.append(backOfImage)
 
     const img = Viva.Graph.svg('image')
@@ -109,6 +112,7 @@ function displayActiveInfo(node) {
   p.appendChild(document.createTextNode(description))
 
   infoPopup.appendChild(p)
+  infoPopup.hidden = false
 
   return infoPopup
 }
@@ -188,6 +192,11 @@ function makeNodeClickHandler(params) {
         Promise.all(similarNodePromises)
           .then(() => delayPromise(500))
           .then(() => {
+            ui.querySelector('#nodeBG')
+              .attr('x', 0)
+              .attr('y', 0)
+              .attr('width', ICON_SIZE)
+              .attr('height', ICON_SIZE)
             img.link(createImageUrl(id))
             // TODO uncomment
             // if we want perma - labels
@@ -243,7 +252,7 @@ function makeNodeClickHandler(params) {
       } else {
         // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
         activeId = null
-        infoPopup.innerHTML = ""
+        infoPopup.hidden = true
       }
     })
   }
@@ -299,7 +308,7 @@ function activateNode(id) {
 function clearGraph() {
   graph.clear()
   activeId = null
-  infoPopup.innerHTML = ''
+  infoPopup.hidden = true
 }
 
 module.exports = {

@@ -60,7 +60,6 @@ async function teleportToSite() {
     reset(name)
     document.querySelector("#mapLabels").hidden = false
     document.querySelector("#landingLabelsContainer").hidden = true
-    document.querySelector("#infoPopup").hidden = false
     document.querySelector('#helper').hidden = true
   } else {
     document.querySelector('#helper').hidden = false
