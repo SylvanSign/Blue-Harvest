@@ -197,21 +197,22 @@ function makeNodeClickHandler(params) {
         description,
       })
 
-      const similarNodePromises = []
+      let promiseChain = Promise.resolve()
       for (const site in similarSites) {
         if (!hasNode(site) || !hasLink(site, id)) {
           const overlap = similarSites[site]
-          const similarPromise = delayPromise()
-            .then(() => createNodeSpawnPromise({
-              id,
-              site,
-              overlap,
-            }))
-          similarNodePromises.push(similarPromise)
+          promiseChain = promiseChain.then(() => {
+            return delayPromise()
+              .then(() => createNodeSpawnPromise({
+                id,
+                site,
+                overlap,
+              }))
+          })
         }
       }
       renderPromise = new Promise(resolve => {
-        Promise.all(similarNodePromises)
+        promiseChain
           .then(() => delayPromise(500))
           .then(() => {
             ui.querySelector('#nodeBG')
@@ -284,7 +285,7 @@ function createNodeSpawnPromise(params) {
     })
 }
 
-function delayPromise(ms = Math.random() * 1000) {
+function delayPromise(ms = 100) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
