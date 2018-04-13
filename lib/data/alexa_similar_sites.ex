@@ -64,7 +64,13 @@ defmodule Data.AlexaSiteInfo do
   end
 
   def fetch_data_from_alexa(host) do
-    result = HTTPoison.get!(@site_info_url <> host, %{}, recv_timeout: @timeout_ms)
+    result =
+      HTTPoison.get!(
+        @site_info_url <> host,
+        %{},
+        recv_timeout: @timeout_ms,
+        follow_redirect: true
+      )
 
     case get_alexa_data(result) do
       :error ->
