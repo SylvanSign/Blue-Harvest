@@ -5,7 +5,8 @@ defmodule Data.SiteDescription do
 
   @name __MODULE__
   @user_agent_pls_no_fbi "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
-  @timeout_ms 100_000
+  @timeout_ms 3_000
+  @error_message "Failed to find description"
 
   ##############
   # PUBLIC API #
@@ -43,7 +44,7 @@ defmodule Data.SiteDescription do
     end
   end
 
-  defp get_description(html) do
+  def get_description(html) do
     case Floki.find(html, "meta[name=description]") do
       tags = [_] ->
         content = Floki.attribute(tags, "content")
@@ -64,7 +65,7 @@ defmodule Data.SiteDescription do
     end
   end
 
-  defp get_blurb(site) do
+  def get_blurb(site) do
     case HTTPoison.get(
            "#{site}",
            %{"User-Agent" => @user_agent_pls_no_fbi},
@@ -73,11 +74,14 @@ defmodule Data.SiteDescription do
          ) do
       {:ok, site_content} ->
         body = Map.get(site_content, :body)
-        description = get_description(body) || get_title(body)
-        {:ok, description}
+
+        case get_description(body) || get_title(body) do
+          nil -> {:error, @error_message}
+          description -> {:ok, description}
+        end
 
       _ ->
-        {:error, "Failed to find description"}
+        {:error, @error_message}
     end
   end
 end
