@@ -71,7 +71,7 @@ function initializeGraph() {
       springCoeff: 0.0001,
       dragCoeff: 0.05,
       springTransform(link, spring) {
-        spring.length = (100 - link.data.overlap) * 3
+        spring.length = (100 - link.data.overlap) * 2
       },
     }),
   })
@@ -114,12 +114,20 @@ function createPopup(node) {
 }
 
 function highlightRelatedNodes(nodeId, isOn) {
+  const ui = graphics.getNodeUI(nodeId)
+  ui.querySelector('#bgLabel').attr('visibility', isOn ? 'visible' : 'hidden')
+  ui.querySelector('text').attr('visibility', isOn ? 'visible' : 'hidden')
   // just enumerate all realted nodes and update link color:
   graph.forEachLinkedNode(nodeId, (node, link) => {
     const linkUI = graphics.getLinkUI(link.id)
     if (linkUI) {
       // linkUI is a UI object created by graphics below
       linkUI.attr('stroke', isOn ? 'red' : 'gray')
+      if (node.data.explored) {
+        const linkedNodeUI = graphics.getNodeUI(node.id)
+        linkedNodeUI.querySelector('#bgLabel').attr('visibility', isOn ? 'visible' : 'hidden')
+        linkedNodeUI.querySelector('text').attr('visibility', isOn ? 'visible' : 'hidden')
+      }
     }
   })
 }
@@ -148,12 +156,13 @@ function makeNodeClickHandler(params) {
       data,
     } = node
 
+    let renderPromise = Promise.resolve();
     if (!data.explored) {
       const img = ui.querySelector('image')
       img.link('/images/spinner.gif')
       const [similarSites, description] = await Promise.all([
-        fetchSimilarSites(node.id),
-        fetchDescription(node.id),
+        fetchSimilarSites(id),
+        fetchDescription(id),
       ])
 
       Object.assign(data, {
@@ -175,59 +184,66 @@ function makeNodeClickHandler(params) {
           similarNodePromises.push(similarPromise)
         }
       }
-      Promise.all(similarNodePromises)
-        .then(() => delayPromise(500))
-        .then(() => img.link(createImageUrl(id)))
-        .then(() => delayPromise(500))
-        .then(() => {
-          // TODO uncomment
-          // if we want perma - labels
-          const text = Viva.Graph.svg('text')
-            .attr('y', '-8px')
-            .text(node.id)
+      renderPromise = new Promise(resolve => {
+        Promise.all(similarNodePromises)
+          .then(() => delayPromise(500))
+          .then(() => {
+            img.link(createImageUrl(id))
+            // TODO uncomment
+            // if we want perma - labels
+            const text = Viva.Graph.svg('text')
+              .attr('y', '-8px')
+              .text(id)
+              .attr('visibility', 'hidden')
 
-          // delay this to event loop to ensure we can read text BBox
-          setTimeout(() => {
-            const {
-              y,
-              width,
-              height
-            } = text.getBBox()
-            // computing x after rendering to center the label
-            const x = -(width - ICON_SIZE) / 2
-            text.attr('x', x)
-            const rect = Viva.Graph.svg('rect')
-              .attr('x', x)
-              .attr('y', y)
-              .attr('width', width)
-              .attr('height', height)
-              .attr('fill', '#fff')
-            text.remove()
-            ui.append(rect)
+            // delay this to event loop to ensure we can read text BBox
+            setTimeout(() => {
+              const {
+                y,
+                width,
+                height
+              } = text.getBBox()
+              // computing x after rendering to center the label
+              const x = -(width - ICON_SIZE) / 2
+              text.attr('x', x)
+              const rect = Viva.Graph.svg('rect')
+                .attr('x', x)
+                .attr('y', y)
+                .attr('width', width)
+                .attr('height', height)
+                .attr('fill', '#fff')
+                .attr('id', 'bgLabel')
+                .attr('visibility', 'hidden')
+
+              text.remove()
+              ui.append(rect)
+              ui.append(text)
+              resolve()
+            }, 0)
             ui.append(text)
-          }, 0)
-          ui.append(text)
-        })
+          })
+      })
+
     }
 
-    // activePopup.remove()
-    // highlightRelatedNodes(activeId, false)
+    renderPromise.then(() => {
+      if (activeId) {
+        highlightRelatedNodes(activeId, false)
+      }
+      if (activeId !== id) {
+        highlightRelatedNodes(id, true)
 
-    if (activeId !== id) {
-      // highlightRelatedNodes(node.id, true)
-      // activePopup = createPopup(node)
+        // make sure to reorder this ui as last node so it draws on top of rest of graph
+        // const parentUI = ui.parentElement
+        // ui.remove()
+        // parentUI.appendChild(ui)
 
-      // make sure to reorder this ui as last node so it draws on top of rest of graph
-      const parentUI = ui.parentElement
-      ui.remove()
-      parentUI.appendChild(ui)
-
-      // ui.appendChild(activePopup)
-      activeId = id
-    } else {
-      // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
-      activeId = null
-    }
+        activeId = id
+      } else {
+        // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
+        activeId = null
+      }
+    })
   }
 }
 
