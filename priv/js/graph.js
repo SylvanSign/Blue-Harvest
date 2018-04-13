@@ -113,7 +113,10 @@ function displayActiveInfo(node) {
   p.appendChild(document.createTextNode(description))
 
   infoPopup.appendChild(p)
-  infoPopup.hidden = false
+
+  if (!window.onLandingPage) {
+    infoPopup.hidden = false
+  }
 
   return infoPopup
 }

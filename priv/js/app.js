@@ -13,6 +13,8 @@ const {
 
 const AUTO_ACTIVATION_DELAY = 500 // ms
 
+window.onLandingPage = true
+
 let currentSite
 let renderer
 
@@ -58,6 +60,7 @@ async function teleportToSite() {
   let name = siteSearch.value.toLowerCase()
   if (await isValidSite(name)) {
     reset(name)
+    window.onLandingPage = false
     document.querySelector("#mapLabels").hidden = false
     document.querySelector("#landingLabelsContainer").hidden = true
     document.querySelector('#helper').hidden = true
@@ -70,6 +73,7 @@ function goToLandingPage() {
   document.querySelector("#mapLabels").hidden = true
   document.querySelector("#landingLabelsContainer").hidden = false
   document.querySelector("#infoPopup").hidden = true
+  window.onLandingPage = true
 
   siteSearch.focus()
   siteSearch.value = ""
