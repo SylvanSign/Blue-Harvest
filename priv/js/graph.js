@@ -198,8 +198,6 @@ function makeNodeClickHandler(params) {
               .attr('width', ICON_SIZE)
               .attr('height', ICON_SIZE)
             img.link(createImageUrl(id))
-            // TODO uncomment
-            // if we want perma - labels
             const text = Viva.Graph.svg('text')
               .attr('y', '-8px')
               .text(id)
@@ -242,12 +240,6 @@ function makeNodeClickHandler(params) {
       if (activeId !== id) {
         displayActiveInfo(node)
         highlightRelatedNodes(id, true)
-
-        // make sure to reorder this ui as last node so it draws on top of rest of graph
-        // const parentUI = ui.parentElement
-        // ui.remove()
-        // parentUI.appendChild(ui)
-
         activeId = id
       } else {
         // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
