@@ -15,6 +15,7 @@ const infoPopup = document.querySelector("#infoPopup")
 const graph = Viva.Graph.graph()
 const graphics = Viva.Graph.View.svgGraphics()
 let activeId
+let resolving = false
 let activePopup
 resetCurrentPopup()
 initializeGraph()
@@ -160,6 +161,24 @@ function makeNodeClickHandler(params) {
       data,
     } = node
 
+    let flag = false
+
+    if (!resolving && activeId) {
+      highlightRelatedNodes(activeId, false)
+      infoPopup.hidden = true
+    }
+    resolving = true
+
+    if (activeId === id) {
+      // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
+      // highlightRelatedNodes(id, false)
+      activeId = null
+      infoPopup.hidden = true
+      flag = true
+    } else {
+      activeId = id
+    }
+
     let renderPromise = Promise.resolve();
     if (!data.explored) {
       const img = ui.querySelector('image')
@@ -234,17 +253,14 @@ function makeNodeClickHandler(params) {
     }
 
     renderPromise.then(() => {
-      if (activeId) {
-        highlightRelatedNodes(activeId, false)
+      resolving = false
+      if (flag) {
+        return
       }
-      if (activeId !== id) {
+
+      if (activeId === id) {
         displayActiveInfo(node)
         highlightRelatedNodes(id, true)
-        activeId = id
-      } else {
-        // this plus the if clause allows us to toggle popup by clicking the current id's image/icon
-        activeId = null
-        infoPopup.hidden = true
       }
     })
   }
