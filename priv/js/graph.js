@@ -8,14 +8,16 @@ const {
 } = require('./serverApi')
 
 const COLORS = {
-  highlightLink: "#4d5d6c",
+  highlightLink: "#cecece",
   regularLink: "#4d5d6c",
   background: "#1a1a1a",
-  text: "#eaeaea",
+  text: "#cecece",
+  questionMarkFill: "#cecece",
 }
 
-const ICON_SIZE = 32 // px
+const ICON_SIZE = 42 // px
 const HALF_ICON_SIZE = ICON_SIZE / 2
+const STROKE_WIDTH = 2
 
 const infoPopup = document.querySelector("#infoPopup")
 
@@ -44,7 +46,7 @@ function initializeGraph() {
       .attr('y', HALF_ICON_SIZE / 2)
       .attr('width', HALF_ICON_SIZE)
       .attr('height', HALF_ICON_SIZE)
-      .attr('fill', COLORS.background)
+      .attr('fill', COLORS.questionMarkFill)
       .attr('id', 'nodeBG')
     ui.append(backOfImage)
 
@@ -82,7 +84,7 @@ function initializeGraph() {
   graphics.link(function (link) {
     return Viva.Graph.svg('path')
       .attr('stroke', COLORS.regularLink)
-      .attr('stroke-width', 1)
+      .attr('stroke-width', STROKE_WIDTH)
       .attr('stroke-dasharray', '10')
   }).placeLink(function (linkUI, fromPos, toPos) {
     // linkUI - is the object returend from link() callback above.
@@ -158,7 +160,7 @@ function highlightRelatedNodes(nodeId, isOn) {
       // linkUI is a UI object created by graphics below
       linkUI.attr('stroke', isOn ? COLORS.highlightLink : COLORS.regularLink)
         .attr('stroke-dasharray', isOn ? '0' : '10')
-        .attr('stroke-width', isOn ? 2 : 1)
+        .attr('stroke-width', isOn ? STROKE_WIDTH : STROKE_WIDTH)
       if (node.data.explored) {
         const linkedNodeUI = graphics.getNodeUI(node.id)
         linkedNodeUI.querySelector('#bgLabel').attr('visibility', isOn ? 'visible' : 'hidden')
@@ -213,6 +215,8 @@ function makeNodeClickHandler(params) {
     let renderPromise = Promise.resolve();
     if (!data.explored) {
       const img = ui.querySelector('image')
+      const rect = ui.querySelector('#nodeBG')
+      rect.attr('fill', COLORS.background)
       img.link('/images/spinner.gif')
       const [similarSites, description] = await Promise.all([
         fetchSimilarSites(id),
