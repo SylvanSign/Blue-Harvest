@@ -8,7 +8,7 @@ const {
 } = require('./serverApi')
 
 const COLORS = {
-  highlightLink: "#eaeaea",
+  highlightLink: "#4d5d6c",
   regularLink: "#4d5d6c",
   background: "#1a1a1a",
   text: "#eaeaea",
@@ -158,6 +158,7 @@ function highlightRelatedNodes(nodeId, isOn) {
       // linkUI is a UI object created by graphics below
       linkUI.attr('stroke', isOn ? COLORS.highlightLink : COLORS.regularLink)
         .attr('stroke-dasharray', isOn ? '0' : '10')
+        .attr('stroke-width', isOn ? 2 : 1)
       if (node.data.explored) {
         const linkedNodeUI = graphics.getNodeUI(node.id)
         linkedNodeUI.querySelector('#bgLabel').attr('visibility', isOn ? 'visible' : 'hidden')

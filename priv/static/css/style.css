@@ -19,16 +19,16 @@ svg,
 
 input {
   text-transform: lowercase;
-  /* color: #1a1a1a; */
-  background-color: #1a1a1a;
+  color: #1a1a1a;
+  background-color: #cecece;
 }
 
 ::placeholder {
-  color: #cecece;
+  color: #4d5d6c;
 }
 
 button {
-  background-color: #1a1a1a;
+  background-color: #4d5d6c;
 }
 
 a {
