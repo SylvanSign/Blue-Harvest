@@ -15,7 +15,7 @@ defmodule Util.URL do
   def clean(url) do
     url
     |> trim_protocol_and_path()
-    |> String.replace(~r{^www.}, "")
+    |> String.replace(~r{^www\.}, "")
   end
 
   defp remove_subdomains(host) do
