@@ -8,7 +8,8 @@ const {
 } = require('./graph')
 
 const {
-  fetchSimilarSites
+  validateSite,
+  fetchSimilarSites,
 } = require('./serverApi')
 
 const AUTO_ACTIVATION_DELAY = 500 // ms
@@ -38,12 +39,6 @@ window.addEventListener("keydown", e => {
   }
 })
 
-async function isValidSite(siteName) {
-
-  let similarSites = await fetchSimilarSites(siteName)
-  return similarSites !== "error"
-}
-
 function reset(siteName) {
   clearGraph()
   currentSite = siteName
@@ -58,14 +53,15 @@ function reset(siteName) {
 
 async function teleportToSite() {
   let name = siteSearch.value.toLowerCase()
-  if (await isValidSite(name)) {
-    reset(name)
+  const validatedSiteName = await validateSite(name)
+  if (validatedSiteName === "error") {
+    document.querySelector('#helper').hidden = false
+  } else {
+    reset(validatedSiteName)
     window.onLandingPage = false
     document.querySelector("#mapLabels").hidden = false
     document.querySelector("#landingLabelsContainer").hidden = true
     document.querySelector('#helper').hidden = true
-  } else {
-    document.querySelector('#helper').hidden = false
   }
 }
 

@@ -1,9 +1,21 @@
 'use strict';
 
 module.exports = {
+  validateSite,
+  fetchSimilarSites,
   fetchDescription,
   fetchImage,
-  fetchSimilarSites,
+}
+
+async function validateSite(site) {
+  if (site === '') {
+    throw new Error("validateSite called with empty site")
+  }
+  const response = await fetch(`/validate?site=${encodeURIComponent(site)}`)
+  const {
+    valid
+  } = await response.json()
+  return valid
 }
 
 async function fetchSimilarSites(site) {

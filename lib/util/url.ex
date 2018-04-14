@@ -6,22 +6,31 @@ defmodule Util.URL do
   #      somebody searches `en.wikipedia.org`, Alexa returns `wikipedia.org` results, we cache those
   #      under
   def parse(url) do
-    url = String.downcase(url)
+    url
+    |> String.downcase()
+    |> trim_protocol_and_path()
+    |> remove_subdomains()
+  end
 
-    domain =
-      case URI.parse(url) do
-        %{host: nil, path: path} ->
-          URI.parse("http://#{path}").host
-
-        %{host: host} ->
-          host
-      end
-
-    remove_subdomains(domain)
+  def clean(url) do
+    url
+    |> trim_protocol_and_path()
+    |> String.replace(~r{^www.}, "")
   end
 
   defp remove_subdomains(host) do
     {:ok, %{domain: domain, tld: tld}} = Domainatrex.parse(host)
     "#{domain}.#{tld}"
+  end
+
+  # also trims trailing slash
+  defp trim_protocol_and_path(url) do
+    case URI.parse(url) do
+      %{host: nil, path: path} ->
+        URI.parse("http://#{path}").host
+
+      %{host: host} ->
+        host
+    end
   end
 end
