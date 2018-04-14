@@ -1,5 +1,5 @@
-# Blue Harvest
-I'll try scraping, that's a good trick!
+# SiteHiker
+Use SiteHiker to find a new favorite website by "hiking" around the neighborhood of one you already love. A website recommender that works!
 
 ## Contributing
 I highly recommend the [ElixirLS](https://marketplace.visualstudio.com/items?itemName=JakeBecker.elixir-ls) extension for Visual Studio Code

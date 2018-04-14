@@ -13,7 +13,7 @@ defmodule Router.Static do
   plug(
     Plug.Static,
     at: "/",
-    from: :blue_harvest
+    from: :site_hiker
   )
 
   def redirect_root_to_index(conn = %Plug.Conn{path_info: []}, _opts) do

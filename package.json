@@ -1,5 +1,5 @@
 {
-  "name": "blue-harvest",
+  "name": "site-hiker",
   "version": "1.0.0",
   "description": "I'll try scraping, that's a good trick!",
   "main": "index.js",
@@ -21,12 +21,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SylvanSign/Blue-Harvest.git"
+    "url": "git+https://github.com/SylvanSign/SiteHiker.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SylvanSign/Blue-Harvest/issues"
+    "url": "https://github.com/SylvanSign/SiteHiker/issues"
   },
-  "homepage": "https://github.com/SylvanSign/Blue-Harvest#readme"
+  "homepage": "https://github.com/SylvanSign/SiteHiker#readme"
 }

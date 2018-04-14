@@ -1,12 +1,11 @@
 use Mix.Releases.Config,
-    # This sets the default release built by `mix release`
-    default_release: :default,
-    # This sets the default environment used by `mix release`
-    default_environment: :dev
+  # This sets the default release built by `mix release`
+  default_release: :default,
+  # This sets the default environment used by `mix release`
+  default_environment: :dev
 
 # For a full list of config options for both releases
 # and environments, visit https://hexdocs.pm/distillery/configuration.html
-
 
 # You may define one or more environments in this file,
 # an environment's settings will override those of a release
@@ -14,15 +13,15 @@ use Mix.Releases.Config,
 # and environment configuration is called a profile
 
 environment :dev do
-  set dev_mode: true
-  set include_erts: false
-  set cookie: :"X=u64wbEW)/@!NX[?d(f^YODx&y5e2.AKG^o/K!f.YanM[g=%@wJ@5*$tF^T2Z0R"
+  set(dev_mode: true)
+  set(include_erts: false)
+  set(cookie: :"X=u64wbEW)/@!NX[?d(f^YODx&y5e2.AKG^o/K!f.YanM[g=%@wJ@5*$tF^T2Z0R")
 end
 
 environment :prod do
-  set include_erts: true
-  set include_src: false
-  set cookie: :"N|SK_f:$[:kx&OA}}?5,32g@!;w&p%qVm!;!X(}(t!:/d?<~y`jkJ2iR6=U8:Wzs"
+  set(include_erts: true)
+  set(include_src: false)
+  set(cookie: :"N|SK_f:$[:kx&OA}}?5,32g@!;w&p%qVm!;!X(}(t!:/d?<~y`jkJ2iR6=U8:Wzs")
 end
 
 # You may define one or more releases in this file.
@@ -30,7 +29,6 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
-release :blue_harvest do
-  set version: current_version(:blue_harvest)
+release :site_hiker do
+  set(version: current_version(:site_hiker))
 end
-

@@ -1,3 +1,3 @@
 use Mix.Config
 
-config :blue_harvest, data_path: 'data'
+config :site_hiker, data_path: 'data'

@@ -1,9 +1,9 @@
-defmodule BlueHarvest.MixProject do
+defmodule SiteHiker.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :blue_harvest,
+      app: :site_hiker,
       version: "1.0.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
@@ -14,7 +14,7 @@ defmodule BlueHarvest.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {BlueHarvest.Application, []},
+      mod: {SiteHiker.Application, []},
       extra_applications: [:logger]
     ]
   end
