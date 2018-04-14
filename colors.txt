@@ -1,0 +1,8 @@
+Colors (Left to Right):
+=======================
+"#1a1a1a"
+"#4d5d6c"
+"#96a8b2"
+"#cecece"
+"#dfe1e0"
+"#eaeaea"

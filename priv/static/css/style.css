@@ -1,3 +1,7 @@
+* {
+  color: #1a1a1a;
+}
+
 body,
 svg,
 #graph-container {
@@ -6,15 +10,50 @@ svg,
   position: absolute;
   overflow: hidden;
   margin: 0px;
-  /* background-color: black; */
+  background-color: #eaeaea;
+}
+
+.glyphicon-search {
+  fill: #eaeaea;
+}
+
+input {
+  text-transform: lowercase;
+  /* color: #eaeaea; */
+  background-color: #eaeaea;
+}
+
+::placeholder {
+  color: #4d5d6c;
+}
+
+button {
+  background-color: #dfe1e0;
+}
+
+a {
+  text-decoration: underline;
+}
+
+a:link {
+  color: #4d5d6c;
+}
+
+a:visited {
+  color: #4d5d6c;
+}
+
+a:hover {
+  color: #96a8b2;
 }
 
 #mapLabels {
+  background-color: transparent;
   position: absolute;
   top: 15px;
   left: 15px;
   z-index: 1;
-  color: white;
+  /* color: white; */
   font-family: sans-serif;
 }
 
@@ -23,7 +62,7 @@ svg,
   bottom: 15px;
   left: 15px;
   z-index: 1;
-  color: white;
+  /* color: white; */
   font-family: sans-serif;
 }
 
@@ -37,11 +76,9 @@ svg,
 }
 
 .round {
-  background-color: white;
+  /* background-color: white; */
   padding: 3px;
   border-radius: 100%;
-  width: 5%;
-  height: 5%;
 }
 
 #logo {
@@ -49,8 +86,8 @@ svg,
 }
 
 #backButton {
-  width: 20px;
-  height: 20px;
+  width: 5%;
+  height: 5%;
 }
 
 #landingLabelsContainer {
@@ -71,10 +108,6 @@ svg,
   font-size: 20px
 }
 
-input {
-  text-transform: lowercase;
-}
-
 #infoContainer {
   position: absolute;
   bottom: 0px;
@@ -83,21 +116,22 @@ input {
 }
 
 #infoPopup {
+  border-radius: 15px 15px 0px 0px;
+  background-color: #eaeaea;
   text-align: justify;
   position: relative;
   float: left;
   left: 50%;
   transform: translate(-50%, 0%);
-  background-color: white;
+  /* background-color: white; */
   /* border: 3px solid black; */
-  border-radius: 15px 15px 0px 0px;
   padding: 5px;
   overflow: auto;
   font-size: 1.75rem;
 }
 
 #helper {
-  color: red;
+  /* color: red; */
   padding-top: 10px;
   font-family: "Helvetica";
   font-size: 1.5rem;

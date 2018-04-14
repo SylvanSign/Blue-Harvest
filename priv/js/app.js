@@ -19,9 +19,6 @@ window.onLandingPage = true
 let currentSite
 let renderer
 
-const siteLabel = document.querySelector("#siteLabel")
-const descriptionLabel = document.querySelector("#descriptionLabel")
-const icon = document.querySelector("#icon")
 const controlsInfo = document.querySelector("#controls")
 const siteSearch = document.querySelector("#siteSearch")
 // disable right click menu so it doesn't ruin the immersion
@@ -42,9 +39,6 @@ window.addEventListener("keydown", e => {
 function reset(siteName) {
   clearGraph()
   currentSite = siteName
-  siteLabel.textContent = ""
-  descriptionLabel.textContent = ""
-  icon.hidden = true
 
   addNode(siteName)
 
@@ -73,22 +67,4 @@ function goToLandingPage() {
 
   siteSearch.focus()
   siteSearch.value = ""
-}
-
-function setSiteLabel(text) {
-  siteLabel.href = `http://${text}`
-  siteLabel.textContent = text
-}
-
-function setDescriptionLabel(text) {
-  descriptionLabel.textContent = text
-}
-
-function setIcon(image) {
-  if (image === "") {
-    icon.hidden = true
-  } else {
-    icon.hidden = false
-    icon.src = image
-  }
 }
